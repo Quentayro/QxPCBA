@@ -2,30 +2,36 @@ package org.qxpcba.controller;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+import org.qxpcba.service.MusicService;
 import org.qxpcba.utils.Constants;
 
 @CrossOrigin(origins = Constants.frontBaseUrl)
 @RequestMapping("/music")
 @RestController
 public class MusicController {
-    Logger logger = LoggerFactory.getLogger(MusicController.class);
+    private Logger logger = LoggerFactory.getLogger(MusicController.class);
+    private MusicService musicService;
 
-    @PostMapping("/postArtist")
-    public String postArtist(@RequestBody String spotifyId) {
-        logger.info("[POST] /postArtist"); // TODO : Log stuff
-        return spotifyId;
+    public MusicController(MusicService musicService) {
+        this.musicService = musicService;
     }
 
-    // Mon controller appelle mon service (injecté grâce à ma config) (controller =
-    // api &
-    // service)
-    // Mon service appelle mon DAO (abstrait le modèle) (repository = dao)
-    // Mon modèle implémente mon DAO (model)
-    // https://openclassrooms.com/fr/courses/6900101-creez-une-application-java-avec-spring-boot/7078013-configurez-et-structurez-votre-api-avec-des-packages
+    @PostMapping("/postArtist")
+    public ResponseEntity<String> postArtist(@RequestBody String artistSpotifyId) {
+        logger.info("[POST] /postArtist");
+        try {
+            return ResponseEntity.status(HttpStatus.OK).body(musicService.postArtist(artistSpotifyId)); // TODO
+        } catch (Exception e) {
+            logger.error("MusicController - postArtist(" + artistSpotifyId + ") failed");
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(e.toString());
+        }
+    }
 }

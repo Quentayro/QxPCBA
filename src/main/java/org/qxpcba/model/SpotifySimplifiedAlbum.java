@@ -1,0 +1,98 @@
+package org.qxpcba.model;
+
+public class SpotifySimplifiedAlbum {
+    private SpotifySimplifiedArtist[] artists;
+    private String[] genres;
+    private String group;
+    private String name;
+    private String picture;
+    private String releaseDate;
+    private String releaseDatePrecision;
+    private String spotifyId;
+    private int tracksNumber;
+    private String type;
+
+    public String getAlbumType() {
+        return this.type;
+    }
+
+    public SpotifySimplifiedArtist[] getArtists() {
+        return this.artists;
+    }
+
+    public String[] getGenres() {
+        if (this.genres == null) {
+            String[] emptyArray = {};
+            this.genres = emptyArray;
+        }
+        return this.genres;
+    }
+
+    public String getGroup() {
+        return this.group;
+    }
+
+    public String getName() {
+        return this.name;
+    }
+
+    public String getPicture() {
+        return this.picture;
+    }
+
+    public String getReleaseDate() {
+        return this.releaseDate;
+    }
+
+    public String getReleaseDatePrecision() {
+        return this.releaseDatePrecision;
+    }
+
+    public String getSpotifyId() {
+        return this.spotifyId;
+    }
+
+    public int getTracksNumber() {
+        return this.tracksNumber;
+    }
+
+    public void setAlbum_group(String group) {
+        this.group = group;
+    }
+
+    public void setAlbum_type(String type) {
+        this.type = type;
+    }
+
+    public void setArtists(SpotifySimplifiedArtist[] artists) {
+        this.artists = artists;
+    }
+
+    public void setGenres(String[] genres) {
+        this.genres = genres;
+    }
+
+    public void setId(String spotifyId) {
+        this.spotifyId = spotifyId;
+    }
+
+    public void setImages(SpotifyImage[] pictures) {
+        this.picture = pictures[0].getUrl();
+    }
+
+    public void setName(String name) {
+        this.name = name;
+    }
+
+    public void setRelease_date(String releaseDate) {
+        this.releaseDate = releaseDate;
+    }
+
+    public void setRelease_date_precision(String releaseDatePrecision) {
+        this.releaseDatePrecision = releaseDatePrecision;
+    }
+
+    public void setTotal_tracks(int tracksNumber) {
+        this.tracksNumber = tracksNumber;
+    }
+}
