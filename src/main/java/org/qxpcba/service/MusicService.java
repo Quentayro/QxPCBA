@@ -48,36 +48,6 @@ public class MusicService {
         return artistSpotifyId;
     }
 
-    private ArrayList<SpotifySimplifiedTrack> spotifyGetAlbumTracks(String albumSpotifyId) {
-        int offset = 0;
-        int tracksNumber = 1;
-        ArrayList<SpotifySimplifiedTrack> tracksToAdd = new ArrayList<SpotifySimplifiedTrack>();
-
-        try {
-            while (offset < tracksNumber) {
-                SpotifyGetAlbumTracksResponse spotifyGetAlbumTracksResponse = this.webClient.get()
-                        .uri("https://api.spotify.com/v1/albums/" + albumSpotifyId + "/tracks?limit=50&offset="
-                                + offset)
-                        .header("Authorization", this.spotifyGetAccessToken())
-                        .retrieve()
-                        .bodyToMono(SpotifyGetAlbumTracksResponse.class)
-                        .block();
-
-                offset += 50;
-                tracksNumber = spotifyGetAlbumTracksResponse.getTracksNumber();
-
-                for (SpotifySimplifiedTrack track : spotifyGetAlbumTracksResponse.getTracks()) {
-                    tracksToAdd.add(track);
-                }
-            }
-        } catch (Exception e) {
-            this.logger.error("MusicService - spotifyGetAlbumTracks(" + albumSpotifyId + ") failed");
-            throw e;
-        }
-
-        return tracksToAdd;
-    }
-
     private String spotifyGetAccessToken() {
         if (spotifyAccessToken == null || spotifyAccessTokenExpirationDate.before(new Date())) {
             try {
@@ -106,6 +76,36 @@ public class MusicService {
         }
 
         return this.spotifyAccessToken;
+    }
+
+    private ArrayList<SpotifySimplifiedTrack> spotifyGetAlbumTracks(String albumSpotifyId) {
+        int offset = 0;
+        int tracksNumber = 1;
+        ArrayList<SpotifySimplifiedTrack> tracksToAdd = new ArrayList<SpotifySimplifiedTrack>();
+
+        try {
+            while (offset < tracksNumber) {
+                SpotifyGetAlbumTracksResponse spotifyGetAlbumTracksResponse = this.webClient.get()
+                        .uri("https://api.spotify.com/v1/albums/" + albumSpotifyId + "/tracks?limit=50&offset="
+                                + offset)
+                        .header("Authorization", this.spotifyGetAccessToken())
+                        .retrieve()
+                        .bodyToMono(SpotifyGetAlbumTracksResponse.class)
+                        .block();
+
+                offset += 50;
+                tracksNumber = spotifyGetAlbumTracksResponse.getTracksNumber();
+
+                for (SpotifySimplifiedTrack track : spotifyGetAlbumTracksResponse.getTracks()) {
+                    tracksToAdd.add(track);
+                }
+            }
+        } catch (Exception e) {
+            this.logger.error("MusicService - spotifyGetAlbumTracks(" + albumSpotifyId + ") failed");
+            throw e;
+        }
+
+        return tracksToAdd;
     }
 
     private ArrayList<SpotifySimplifiedAlbum> spotifyGetAlbums(String artistSpotifyId) {
