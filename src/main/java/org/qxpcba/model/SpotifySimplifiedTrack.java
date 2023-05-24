@@ -1,12 +1,17 @@
 package org.qxpcba.model;
 
 public class SpotifySimplifiedTrack {
+    private String albumSpotifyId;
     private SpotifySimplifiedArtist[] artists;
     private int discNumber;
     private int duration;
     private String name;
     private int order;
     private String spotifyId;
+
+    public String getAlbumSpotifyId() {
+        return this.albumSpotifyId;
+    }
 
     public SpotifySimplifiedArtist[] getArtists() {
         return this.artists;
@@ -30,6 +35,10 @@ public class SpotifySimplifiedTrack {
 
     public String getSpotifyId() {
         return this.spotifyId;
+    }
+
+    public void setAlbumSpotifyId(String albumSpotifyId) {
+        this.albumSpotifyId = albumSpotifyId;
     }
 
     public void setArtists(SpotifySimplifiedArtist[] artists) {

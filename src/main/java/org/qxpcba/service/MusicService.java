@@ -117,6 +117,7 @@ public class MusicService {
                 tracksNumber = spotifyGetAlbumTracksResponse.getTracksNumber();
 
                 for (SpotifySimplifiedTrack track : spotifyGetAlbumTracksResponse.getTracks()) {
+                    track.setAlbumSpotifyId(albumSpotifyId);
                     tracksToAdd.add(track);
                 }
             }
