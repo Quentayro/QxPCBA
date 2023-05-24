@@ -1,6 +1,7 @@
 package org.qxpcba.service;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.HashMap;
@@ -14,6 +15,7 @@ import org.qxpcba.model.SpotifyArtist;
 import org.qxpcba.model.SpotifyGetAcessTokenResponse;
 import org.qxpcba.model.SpotifyGetAlbumsResponse;
 import org.qxpcba.model.SpotifyGetArtistRelatedArtistsResponse;
+import org.qxpcba.model.SpotifyGetArtistsResponse;
 import org.qxpcba.model.SpotifyGetAlbumTracksResponse;
 import org.qxpcba.model.SpotifySimplifiedAlbum;
 import org.qxpcba.model.SpotifySimplifiedArtist;
@@ -41,22 +43,22 @@ public class MusicService {
             }
             System.out.println("tracksToAdd.size : " + tracksToAdd.size()); // TODO : delete
 
-            HashMap<String, Boolean> artistsToAdd = this.spotifyGetArtistRelatedArtistsIds(artistSpotifyId);
+            HashMap<String, Boolean> artistsToAddSpotifyIds = this.spotifyGetArtistRelatedArtistsIds(artistSpotifyId);
             for (SpotifySimplifiedAlbum album : albumsToAdd) {
                 for (SpotifySimplifiedArtist artist : album.getArtists()) {
-                    // TODO : Do not add if artist already in the database
-                    artistsToAdd.put(artist.getSpotifyId(), true);
+                    artistsToAddSpotifyIds.put(artist.getSpotifyId(), true);
                 }
             }
             for (SpotifySimplifiedTrack track : tracksToAdd) {
                 for (SpotifySimplifiedArtist artist : track.getArtists()) {
-                    // TODO : Do not add artist if already in the database
-                    artistsToAdd.put(artist.getSpotifyId(), true);
+                    artistsToAddSpotifyIds.put(artist.getSpotifyId(), true);
                 }
             }
+            System.out.println("artistsToAddSpotifyIds.size : " + artistsToAddSpotifyIds.size()); // TODO : delete
+
+            ArrayList<SpotifyArtist> artistsToAdd = this.spotifyGetArtists(artistsToAddSpotifyIds);
             System.out.println("artistsToAdd.size : " + artistsToAdd.size()); // TODO : delete
 
-            // TODO : Get artists
             // TODO : Database
         } catch (Exception e) {
             this.logger.error("MusicService - postArtist(" + artistSpotifyId + ") failed");
@@ -127,9 +129,9 @@ public class MusicService {
     }
 
     private ArrayList<SpotifySimplifiedAlbum> spotifyGetAlbums(String artistSpotifyId) {
-        int offset = 0;
         int albumsNumber = 1;
         ArrayList<SpotifySimplifiedAlbum> albumsToAdd = new ArrayList<SpotifySimplifiedAlbum>();
+        int offset = 0;
 
         try {
             while (offset < albumsNumber) {
@@ -145,7 +147,6 @@ public class MusicService {
                 albumsNumber = spotifyGetAlbumsResponse.getAlbumsNumber();
 
                 for (SpotifySimplifiedAlbum album : spotifyGetAlbumsResponse.getAlbums()) {
-                    // TODO : Do not add album if already in the database
                     if (album.getAlbumType().equals("album") || album.getAlbumType().equals("single")
                             || album.getGroup().equals("compilation")) {
                         albumsToAdd.add(album);
@@ -172,7 +173,6 @@ public class MusicService {
                     .block();
 
             for (SpotifyArtist artist : spotifyGetArtistRelatedArtistsResponse.getArtists()) {
-                // TODO : Do not add if already in the database
                 relatedArtistsIds.put(artist.getSpotifyId(), true);
             }
         } catch (Exception e) {
@@ -181,5 +181,48 @@ public class MusicService {
         }
 
         return relatedArtistsIds;
+    }
+
+    private ArrayList<SpotifyArtist> spotifyGetArtists(HashMap<String, Boolean> artistsSpotifyIds) {
+        ArrayList<SpotifyArtist> artistsToAdd = new ArrayList<SpotifyArtist>();
+
+        int requestsNumber = artistsSpotifyIds.size() / 50;
+        if (artistsSpotifyIds.size() % 50 != 0) {
+            requestsNumber += 1;
+        }
+
+        String[] requestsArtistsSpotifyIds = new String[requestsNumber];
+        Arrays.fill(requestsArtistsSpotifyIds, "");
+
+        int index = 0;
+        for (String artistSpotifyId : artistsSpotifyIds.keySet()) {
+            String artistSpotifyIdToAdd = "";
+            if (index % 50 != 0) {
+                artistSpotifyIdToAdd += ",";
+            }
+            artistSpotifyIdToAdd += artistSpotifyId;
+            requestsArtistsSpotifyIds[index / 50] += artistSpotifyIdToAdd;
+            index += 1;
+        }
+
+        for (String requestArtistsSpotifyIds : requestsArtistsSpotifyIds) {
+            try {
+                SpotifyGetArtistsResponse spotifyGetArtistRelatedArtistsResponse = this.webClient.get()
+                        .uri("https://api.spotify.com/v1/artists?ids=" + requestArtistsSpotifyIds)
+                        .header("Authorization", this.spotifyGetAccessToken())
+                        .retrieve()
+                        .bodyToMono(SpotifyGetArtistsResponse.class)
+                        .block();
+
+                for (SpotifyArtist artist : spotifyGetArtistRelatedArtistsResponse.getArtists()) {
+                    artistsToAdd.add(artist);
+                }
+            } catch (Exception e) {
+                this.logger.error("MusicService - spotifyGetArtists(artistsSpotifyIds) failed");
+                throw e;
+            }
+        }
+
+        return artistsToAdd;
     }
 }
