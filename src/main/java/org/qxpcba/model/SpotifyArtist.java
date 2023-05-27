@@ -18,7 +18,7 @@ public class SpotifyArtist extends SpotifySimplifiedArtist {
 
     public void setImages(SpotifyImage[] pictures) {
         if (pictures.length == 0) {
-            this.picture = "";
+            this.picture = null;
         } else {
             this.picture = pictures[0].getUrl();
         }

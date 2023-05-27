@@ -10,7 +10,6 @@ import org.slf4j.LoggerFactory;
 import org.springframework.http.MediaType;
 import org.springframework.stereotype.Service;
 import org.springframework.web.reactive.function.client.WebClient;
-
 import org.qxpcba.model.SpotifyArtist;
 import org.qxpcba.model.SpotifyGetAcessTokenResponse;
 import org.qxpcba.model.SpotifyGetAlbumsResponse;
@@ -20,28 +19,32 @@ import org.qxpcba.model.SpotifyGetAlbumTracksResponse;
 import org.qxpcba.model.SpotifySimplifiedAlbum;
 import org.qxpcba.model.SpotifySimplifiedArtist;
 import org.qxpcba.model.SpotifySimplifiedTrack;
+import org.qxpcba.repository.MusicRepository;
 import org.qxpcba.utils.Constants;
 import org.qxpcba.utils.Secrets;
 
 @Service
 public class MusicService {
     private Logger logger = LoggerFactory.getLogger(MusicService.class);
+    private MusicRepository musicRepository;
     private String spotifyAccessToken;
     private Date spotifyAccessTokenExpirationDate = new Date();
     private WebClient webClient = WebClient.create();
+
+    public MusicService(MusicRepository musicRepository) {
+        this.musicRepository = musicRepository;
+    }
 
     public String postArtist(String artistSpotifyId) {
         System.out.println("XXX - POST ARTIST - XXX"); // TODO : delete
         System.out.println("artistSpotifyId : " + artistSpotifyId); // TODO : delete
         try {
             ArrayList<SpotifySimplifiedAlbum> albumsToAdd = this.spotifyGetAlbums(artistSpotifyId);
-            System.out.println("albumsToAdd.size : " + albumsToAdd.size()); // TODO : delete
 
             ArrayList<SpotifySimplifiedTrack> tracksToAdd = new ArrayList<SpotifySimplifiedTrack>();
             for (SpotifySimplifiedAlbum album : albumsToAdd) {
                 tracksToAdd.addAll(this.spotifyGetAlbumTracks(album.getSpotifyId()));
             }
-            System.out.println("tracksToAdd.size : " + tracksToAdd.size()); // TODO : delete
 
             HashMap<String, Boolean> artistsToAddSpotifyIds = this.spotifyGetArtistRelatedArtistsIds(artistSpotifyId);
             for (SpotifySimplifiedAlbum album : albumsToAdd) {
@@ -54,12 +57,12 @@ public class MusicService {
                     artistsToAddSpotifyIds.put(artist.getSpotifyId(), true);
                 }
             }
-            System.out.println("artistsToAddSpotifyIds.size : " + artistsToAddSpotifyIds.size()); // TODO : delete
-
             ArrayList<SpotifyArtist> artistsToAdd = this.spotifyGetArtists(artistsToAddSpotifyIds);
-            System.out.println("artistsToAdd.size : " + artistsToAdd.size()); // TODO : delete
 
-            // TODO : Database
+            // TODO : Get necessary data and filter what is already here
+            // TODO : Maybe use Set instead of HashMap
+
+            this.musicRepository.postArtist(albumsToAdd, artistsToAdd, tracksToAdd);
         } catch (Exception e) {
             this.logger.error("MusicService - postArtist(" + artistSpotifyId + ") failed");
             throw e;
