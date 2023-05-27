@@ -1,6 +1,6 @@
-package org.qxpcba.model;
+package org.qxpcba.model.music;
 
-public class SpotifyGetArtistRelatedArtistsResponse {
+public class SpotifyGetArtistsResponse {
     private SpotifyArtist[] artists;
 
     public SpotifyArtist[] getArtists() {

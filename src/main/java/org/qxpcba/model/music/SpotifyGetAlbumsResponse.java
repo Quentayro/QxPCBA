@@ -1,4 +1,4 @@
-package org.qxpcba.model;
+package org.qxpcba.model.music;
 
 public class SpotifyGetAlbumsResponse {
     private SpotifySimplifiedAlbum[] albums;

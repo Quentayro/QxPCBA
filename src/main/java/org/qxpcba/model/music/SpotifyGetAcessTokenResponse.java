@@ -1,4 +1,4 @@
-package org.qxpcba.model;
+package org.qxpcba.model.music;
 
 public class SpotifyGetAcessTokenResponse {
     private String accessToken;
