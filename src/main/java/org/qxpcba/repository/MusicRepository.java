@@ -27,8 +27,11 @@ public class MusicRepository {
             jdbcTemplate.update("ALTER TABLE t_music_artists AUTO_INCREMENT = 1");
             jdbcTemplate.update("DELETE FROM t_music_albums;");
             jdbcTemplate.update("ALTER TABLE t_music_albums AUTO_INCREMENT = 1");
+            jdbcTemplate.update("DELETE FROM t_music_tracks;");
+            jdbcTemplate.update("ALTER TABLE t_music_tracks AUTO_INCREMENT = 1");
             this.insertIntoTMusicArtists(artistsToAdd);
             this.insertIntoTMusicAlbums(albumsToAdd);
+            this.insertIntoTMusicTracks(tracksToAdd);
             System.out.println("postArtist repository logic done");
         } catch (Exception e) {
             System.out.println(e);
@@ -102,6 +105,31 @@ public class MusicRepository {
             jdbcTemplate.update(query);
         } catch (Exception e) {
             this.logger.error("MusicRepository - insertIntoTMusicArtists(artistsToAdd) failed");
+            throw e;
+        }
+    }
+
+    private void insertIntoTMusicTracks(ArrayList<SpotifySimplifiedTrack> tracksToAdd) {
+        String query = "INSERT INTO t_music_tracks (c_album_spotify_id, c_disc_number, c_duration, c_name, c_order, c_spotify_id) VALUES\n";
+
+        int index = 1;
+        int tracksNumber = tracksToAdd.size();
+        for (SpotifySimplifiedTrack track : tracksToAdd) {
+            query += "('" + track.getAlbumSpotifyId() + "'," + track.getDiscNumber() + "," + track.getDuration() + ",'"
+                    + track.getName().replaceAll("'", "''") + "'," + track.getOrder() + ",'" + track.getSpotifyId()
+                    + "')";
+            if (index == tracksNumber) {
+                query += ";";
+            } else {
+                query += ",\n";
+            }
+            index++;
+        }
+
+        try {
+            jdbcTemplate.update(query);
+        } catch (Exception e) {
+            this.logger.error("MusicRepository - insertIntoTMusicTracks(tracksToAdd) failed");
             throw e;
         }
     }
