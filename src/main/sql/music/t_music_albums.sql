@@ -11,36 +11,3 @@ CREATE TABLE t_music_albums (
     c_tracks_number SMALLINT UNSIGNED NOT NULL,
     c_type VARCHAR(15) NOT NULL
 );
-
-INSERT INTO
-    t_music_albums (
-        c_name,
-        c_picture,
-        c_release_day,
-        c_release_month,
-        c_release_year,
-        c_spotify_id,
-        c_tracks_number,
-        c_type
-    )
-VALUES
-    (
-        'nameTest',
-        'pictureTest',
-        1,
-        1,
-        1970,
-        'spotifyIdTest0',
-        1,
-        'typeTest'
-    ),
-    (
-        'nameTest',
-        'pictureTest',
-        NULL,
-        NULL,
-        1970,
-        'spotifyIdTest1',
-        1,
-        'typeTest'
-    );

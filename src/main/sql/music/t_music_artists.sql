@@ -7,9 +7,3 @@ CREATE TABLE t_music_artists (
     c_picture VARCHAR(63),
     c_spotify_id VARCHAR(31) NOT NULL UNIQUE
 );
-
-INSERT INTO
-    t_music_artists (c_name, c_picture, c_spotify_id)
-VALUES
-    ('nameTest', 'pictureTest', 'spotifyIdTest0'),
-    ('nameTest', NULL, 'spotifyIdTest1');
