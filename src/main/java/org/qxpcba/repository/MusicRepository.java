@@ -6,9 +6,9 @@ import org.slf4j.LoggerFactory;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.stereotype.Repository;
 
-import org.qxpcba.model.SpotifyArtist;
-import org.qxpcba.model.SpotifySimplifiedAlbum;
-import org.qxpcba.model.SpotifySimplifiedTrack;
+import org.qxpcba.model.music.SpotifyArtist;
+import org.qxpcba.model.music.SpotifySimplifiedAlbum;
+import org.qxpcba.model.music.SpotifySimplifiedTrack;
 
 @Repository
 public class MusicRepository {
@@ -21,7 +21,60 @@ public class MusicRepository {
 
     public void postArtist(ArrayList<SpotifySimplifiedAlbum> albumsToAdd, ArrayList<SpotifyArtist> artistsToAdd,
             ArrayList<SpotifySimplifiedTrack> tracksToAdd) {
-        this.insertIntoTMusicArtists(artistsToAdd);
+        try {
+            // TODO : Delete the following queries
+            jdbcTemplate.update("DELETE FROM t_music_artists;");
+            jdbcTemplate.update("ALTER TABLE t_music_artists AUTO_INCREMENT = 1");
+            jdbcTemplate.update("DELETE FROM t_music_albums;");
+            jdbcTemplate.update("ALTER TABLE t_music_albums AUTO_INCREMENT = 1");
+            this.insertIntoTMusicArtists(artistsToAdd);
+            this.insertIntoTMusicAlbums(albumsToAdd);
+            System.out.println("postArtist repository logic done");
+        } catch (Exception e) {
+            System.out.println(e);
+            this.logger.error("MusicRepository - postArtist(albumsToAdd, artistsToAdd, tracksToAdd) failed");
+            throw e;
+        }
+
+    }
+
+    private void insertIntoTMusicAlbums(ArrayList<SpotifySimplifiedAlbum> albumsToAdd) {
+        String query = "INSERT INTO t_music_albums (c_name, c_picture, c_release_day, c_release_month, c_release_year, c_spotify_id, c_tracks_number, c_type) VALUES\n";
+
+        int albumsNumber = albumsToAdd.size();
+        int index = 1;
+        for (SpotifySimplifiedAlbum album : albumsToAdd) {
+            query += "('" + album.getName().replaceAll("'", "''") + "','" + album.getPicture() + "',";
+            String[] releaseDate = album.getReleaseDate().split("-");
+            String releaseDatePrecision = album.getReleaseDatePrecision();
+            if (releaseDatePrecision.equals("day")) {
+                query += releaseDate[2];
+            } else {
+                query += "NULL";
+            }
+            query += ",";
+            if (releaseDatePrecision.equals("year")) {
+                query += "NULL";
+            } else {
+                query += releaseDate[1];
+            }
+            query += "," + releaseDate[0] + ",'" + album.getSpotifyId() + "'," +
+                    album.getTracksNumber() + ",'"
+                    + album.getAlbumType() + "')";
+            if (index == albumsNumber) {
+                query += ";";
+            } else {
+                query += ",\n";
+            }
+            index++;
+        }
+
+        try {
+            jdbcTemplate.update(query);
+        } catch (Exception e) {
+            this.logger.error("MusicRepository - insertIntoTMusicAlbums(albumsToAdd) failed");
+            throw e;
+        }
     }
 
     private void insertIntoTMusicArtists(ArrayList<SpotifyArtist> artistsToAdd) {
