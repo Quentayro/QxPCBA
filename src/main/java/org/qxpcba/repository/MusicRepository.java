@@ -9,6 +9,7 @@ import org.springframework.stereotype.Repository;
 
 import org.qxpcba.model.music.SpotifyArtist;
 import org.qxpcba.model.music.SpotifySimplifiedAlbum;
+import org.qxpcba.model.music.SpotifySimplifiedArtist;
 import org.qxpcba.model.music.SpotifySimplifiedTrack;
 
 @Repository
@@ -25,6 +26,8 @@ public class MusicRepository {
             ArrayList<SpotifySimplifiedTrack> tracksToAdd) {
         try {
             // TODO : Delete the following queries
+            jdbcTemplate.update("DELETE FROM tj_music_albums_artists;");
+            jdbcTemplate.update("ALTER TABLE tj_music_albums_artists AUTO_INCREMENT = 1");
             jdbcTemplate.update("DELETE FROM t_music_tracks;");
             jdbcTemplate.update("ALTER TABLE t_music_tracks AUTO_INCREMENT = 1");
             jdbcTemplate.update("DELETE FROM t_music_albums;");
@@ -37,6 +40,7 @@ public class MusicRepository {
             this.insertIntoTMusicAlbums(albumsToAdd);
             this.insertIntoTMusicTracks(tracksToAdd);
             this.insertIntoTMusicGenres(genresToAdd);
+            this.insertIntoTjMusicAlbumsArtists(albumsToAdd);
             System.out.println("postArtist repository logic done");
         } catch (Exception e) {
             System.out.println(e);
@@ -44,6 +48,38 @@ public class MusicRepository {
             throw e;
         }
 
+    }
+
+    private void insertIntoTjMusicAlbumsArtists(ArrayList<SpotifySimplifiedAlbum> albumsToAdd) {
+        String query = "INSERT INTO tj_music_albums_artists (c_album_spotify_id, c_artist_spotify_id) VALUES\n";
+
+        int albumsIndex = 1;
+        int albumsNumber = albumsToAdd.size();
+        for (SpotifySimplifiedAlbum album : albumsToAdd) {
+            SpotifySimplifiedArtist[] artists = album.getArtists();
+            String albumSpotifyId = album.getSpotifyId();
+
+            int artistsIndex = 1;
+            int artistsNumber = artists.length;
+            for (SpotifySimplifiedArtist artist : artists) {
+                query += "('" + albumSpotifyId + "','" + artist.getSpotifyId() + "')";
+
+                if (artistsIndex == artistsNumber && albumsIndex == albumsNumber) {
+                    query += ";";
+                } else {
+                    query += ",\n";
+                }
+                artistsIndex++;
+            }
+            albumsIndex++;
+        }
+
+        try {
+            jdbcTemplate.update(query);
+        } catch (Exception e) {
+            this.logger.error("MusicRepository - insertIntoTjMusicAlbumsArtists(albumsToAdd) failed");
+            throw e;
+        }
     }
 
     private void insertIntoTMusicAlbums(ArrayList<SpotifySimplifiedAlbum> albumsToAdd) {
