@@ -60,7 +60,6 @@ public class MusicRepository {
             this.logger.error("MusicRepository - postArtist(albumsToAdd, artistsToAdd, tracksToAdd) failed");
             throw e;
         }
-
     }
 
     private void insertIntoTjMusicAlbumsArtists(ArrayList<SpotifySimplifiedAlbum> albumsToAdd) {
