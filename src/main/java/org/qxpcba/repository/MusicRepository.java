@@ -27,6 +27,8 @@ public class MusicRepository {
             ArrayList<SpotifySimplifiedTrack> tracksToAdd) {
         try {
             // TODO : Delete the following queries
+            jdbcTemplate.update("DELETE FROM tj_music_artists_tracks;");
+            jdbcTemplate.update("ALTER TABLE tj_music_artists_tracks AUTO_INCREMENT = 1");
             jdbcTemplate.update("DELETE FROM tj_music_artists_genres;");
             jdbcTemplate.update("ALTER TABLE tj_music_artists_genres AUTO_INCREMENT = 1");
             jdbcTemplate.update("DELETE FROM tj_music_artists_artists;");
@@ -51,6 +53,7 @@ public class MusicRepository {
             this.insertIntoTjMusicAlbumsGenres(albumsToAdd);
             this.insertIntoTjMusicArtistsArtists(artistSpotifyId, artistsToAdd);
             this.insertIntoTjMusicArtistsGenres(artistsToAdd);
+            this.insertIntoTjMusicArtiststracks(tracksToAdd);
             System.out.println("postArtist repository logic done");
         } catch (Exception e) {
             System.out.println(e);
@@ -149,6 +152,25 @@ public class MusicRepository {
             jdbcTemplate.update(query);
         } catch (Exception e) {
             this.logger.error("MusicRepository - insertIntoTjMusicArtistsGenres(artistsToAdd) failed");
+            throw e;
+        }
+    }
+
+    private void insertIntoTjMusicArtiststracks(ArrayList<SpotifySimplifiedTrack> tracksToAdd) {
+        String query = "INSERT INTO tj_music_artists_tracks (c_artist_spotify_id, c_track_spotify_id) VALUES\n";
+
+        for (SpotifySimplifiedTrack track : tracksToAdd) {
+            for (SpotifySimplifiedArtist artist : track.getArtists()) {
+                query += "('" + artist.getSpotifyId() + "','" + track.getSpotifyId() + "'),\n";
+            }
+        }
+
+        query = query.substring(0, query.length() - 2) + ";";
+
+        try {
+            jdbcTemplate.update(query);
+        } catch (Exception e) {
+            this.logger.error("MusicRepository - insertIntoTjMusicArtiststracks(tracksToAdd) failed");
             throw e;
         }
     }
