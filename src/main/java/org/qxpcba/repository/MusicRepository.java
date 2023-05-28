@@ -21,47 +21,6 @@ public class MusicRepository {
         this.jdbcTemplate = jdbcTemplate;
     }
 
-    public void postArtist(ArrayList<SpotifySimplifiedAlbum> albumsToAdd, String artistSpotifyId,
-            ArrayList<SpotifyArtist> artistsToAdd,
-            HashSet<String> genresToAdd,
-            ArrayList<SpotifySimplifiedTrack> tracksToAdd) {
-        try {
-            // TODO : Delete the following queries
-            jdbcTemplate.update("DELETE FROM tj_music_artists_tracks;");
-            jdbcTemplate.update("ALTER TABLE tj_music_artists_tracks AUTO_INCREMENT = 1");
-            jdbcTemplate.update("DELETE FROM tj_music_artists_genres;");
-            jdbcTemplate.update("ALTER TABLE tj_music_artists_genres AUTO_INCREMENT = 1");
-            jdbcTemplate.update("DELETE FROM tj_music_artists_artists;");
-            jdbcTemplate.update("ALTER TABLE tj_music_artists_artists AUTO_INCREMENT = 1");
-            jdbcTemplate.update("DELETE FROM tj_music_albums_genres;");
-            jdbcTemplate.update("ALTER TABLE tj_music_albums_genres AUTO_INCREMENT = 1");
-            jdbcTemplate.update("DELETE FROM tj_music_albums_artists;");
-            jdbcTemplate.update("ALTER TABLE tj_music_albums_artists AUTO_INCREMENT = 1");
-            jdbcTemplate.update("DELETE FROM t_music_tracks;");
-            jdbcTemplate.update("ALTER TABLE t_music_tracks AUTO_INCREMENT = 1");
-            jdbcTemplate.update("DELETE FROM t_music_albums;");
-            jdbcTemplate.update("ALTER TABLE t_music_albums AUTO_INCREMENT = 1");
-            jdbcTemplate.update("DELETE FROM t_music_artists;");
-            jdbcTemplate.update("ALTER TABLE t_music_artists AUTO_INCREMENT = 1");
-            jdbcTemplate.update("DELETE FROM t_music_genres;");
-            jdbcTemplate.update("ALTER TABLE t_music_genres AUTO_INCREMENT = 1");
-            this.insertIntoTMusicArtists(artistsToAdd);
-            this.insertIntoTMusicAlbums(albumsToAdd);
-            this.insertIntoTMusicTracks(tracksToAdd);
-            this.insertIntoTMusicGenres(genresToAdd);
-            this.insertIntoTjMusicAlbumsArtists(albumsToAdd);
-            this.insertIntoTjMusicAlbumsGenres(albumsToAdd);
-            this.insertIntoTjMusicArtistsArtists(artistSpotifyId, artistsToAdd);
-            this.insertIntoTjMusicArtistsGenres(artistsToAdd);
-            this.insertIntoTjMusicArtiststracks(tracksToAdd);
-            System.out.println("postArtist repository logic done");
-        } catch (Exception e) {
-            System.out.println(e);
-            this.logger.error("MusicRepository - postArtist(albumsToAdd, artistsToAdd, tracksToAdd) failed");
-            throw e;
-        }
-    }
-
     private void insertIntoTjMusicAlbumsArtists(ArrayList<SpotifySimplifiedAlbum> albumsToAdd) {
         String query = "INSERT INTO tj_music_albums_artists (c_album_spotify_id, c_artist_spotify_id) VALUES\n";
 
@@ -262,6 +221,47 @@ public class MusicRepository {
             jdbcTemplate.update(query);
         } catch (Exception e) {
             this.logger.error("MusicRepository - insertIntoTMusicTracks(tracksToAdd) failed");
+            throw e;
+        }
+    }
+
+    public void postArtist(ArrayList<SpotifySimplifiedAlbum> albumsToAdd, String artistSpotifyId,
+            ArrayList<SpotifyArtist> artistsToAdd,
+            HashSet<String> genresToAdd,
+            ArrayList<SpotifySimplifiedTrack> tracksToAdd) {
+        try {
+            // TODO : Delete the following queries
+            jdbcTemplate.update("DELETE FROM tj_music_artists_tracks;");
+            jdbcTemplate.update("ALTER TABLE tj_music_artists_tracks AUTO_INCREMENT = 1");
+            jdbcTemplate.update("DELETE FROM tj_music_artists_genres;");
+            jdbcTemplate.update("ALTER TABLE tj_music_artists_genres AUTO_INCREMENT = 1");
+            jdbcTemplate.update("DELETE FROM tj_music_artists_artists;");
+            jdbcTemplate.update("ALTER TABLE tj_music_artists_artists AUTO_INCREMENT = 1");
+            jdbcTemplate.update("DELETE FROM tj_music_albums_genres;");
+            jdbcTemplate.update("ALTER TABLE tj_music_albums_genres AUTO_INCREMENT = 1");
+            jdbcTemplate.update("DELETE FROM tj_music_albums_artists;");
+            jdbcTemplate.update("ALTER TABLE tj_music_albums_artists AUTO_INCREMENT = 1");
+            jdbcTemplate.update("DELETE FROM t_music_tracks;");
+            jdbcTemplate.update("ALTER TABLE t_music_tracks AUTO_INCREMENT = 1");
+            jdbcTemplate.update("DELETE FROM t_music_albums;");
+            jdbcTemplate.update("ALTER TABLE t_music_albums AUTO_INCREMENT = 1");
+            jdbcTemplate.update("DELETE FROM t_music_artists;");
+            jdbcTemplate.update("ALTER TABLE t_music_artists AUTO_INCREMENT = 1");
+            jdbcTemplate.update("DELETE FROM t_music_genres;");
+            jdbcTemplate.update("ALTER TABLE t_music_genres AUTO_INCREMENT = 1");
+            this.insertIntoTMusicArtists(artistsToAdd);
+            this.insertIntoTMusicAlbums(albumsToAdd); // Filter albums already added
+            this.insertIntoTMusicTracks(tracksToAdd);
+            this.insertIntoTMusicGenres(genresToAdd);
+            this.insertIntoTjMusicAlbumsArtists(albumsToAdd); // Filter albums already added
+            this.insertIntoTjMusicAlbumsGenres(albumsToAdd); // Filter albums already added
+            this.insertIntoTjMusicArtistsArtists(artistSpotifyId, artistsToAdd);
+            this.insertIntoTjMusicArtistsGenres(artistsToAdd);
+            this.insertIntoTjMusicArtiststracks(tracksToAdd);
+            System.out.println("postArtist repository logic done");
+        } catch (Exception e) {
+            System.out.println(e);
+            this.logger.error("MusicRepository - postArtist(albumsToAdd, artistsToAdd, tracksToAdd) failed");
             throw e;
         }
     }
