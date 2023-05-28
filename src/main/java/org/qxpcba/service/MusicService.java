@@ -80,6 +80,15 @@ public class MusicService {
                 }
             }
 
+            HashSet<String> addedTracksSpotifyIds = this.musicRepository.selectSpotifyIdsFromTMusicTracks();
+
+            ArrayList<SpotifySimplifiedTrack> filteredTracksToAdd = new ArrayList<SpotifySimplifiedTrack>();
+            for (SpotifySimplifiedTrack track : tracksToAdd) {
+                if (!addedTracksSpotifyIds.contains(track.getSpotifyId())) {
+                    filteredTracksToAdd.add(track);
+                }
+            }
+
             // TODO : Get necessary data and filter what is already here
             // TODO : Maybe use HashSet instead of HashMap and ArrayList
 
