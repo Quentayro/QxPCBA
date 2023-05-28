@@ -311,9 +311,7 @@ public class MusicRepository {
             this.insertIntoTjMusicArtistsGenres(artistsToAdd);
             this.insertIntoTjMusicArtiststracks(tracksToAdd);
             this.deleteSuggestedArtistSuggestions(artistSpotifyId);
-            System.out.println("postArtist repository logic done");
         } catch (Exception e) {
-            System.out.println(e);
             this.logger.error("MusicRepository - postArtist(albumsToAdd, artistsToAdd, tracksToAdd) failed");
             throw e;
         }
