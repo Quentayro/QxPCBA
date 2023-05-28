@@ -75,7 +75,7 @@ public class MusicService {
             // TODO : Get necessary data and filter what is already here
             // TODO : Maybe use HashSet instead of HashMap and ArrayList
 
-            this.musicRepository.postArtist(albumsToAdd, artistsToAdd, genresToAdd, tracksToAdd);
+            this.musicRepository.postArtist(albumsToAdd, artistSpotifyId, artistsToAdd, genresToAdd, tracksToAdd);
         } catch (Exception e) {
             this.logger.error("MusicService - postArtist(" + artistSpotifyId + ") failed");
             throw e;
