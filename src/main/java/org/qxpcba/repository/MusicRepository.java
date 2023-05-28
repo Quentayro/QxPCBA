@@ -26,6 +26,8 @@ public class MusicRepository {
             ArrayList<SpotifySimplifiedTrack> tracksToAdd) {
         try {
             // TODO : Delete the following queries
+            jdbcTemplate.update("DELETE FROM tj_music_albums_genres;");
+            jdbcTemplate.update("ALTER TABLE tj_music_albums_genres AUTO_INCREMENT = 1");
             jdbcTemplate.update("DELETE FROM tj_music_albums_artists;");
             jdbcTemplate.update("ALTER TABLE tj_music_albums_artists AUTO_INCREMENT = 1");
             jdbcTemplate.update("DELETE FROM t_music_tracks;");
@@ -41,6 +43,7 @@ public class MusicRepository {
             this.insertIntoTMusicTracks(tracksToAdd);
             this.insertIntoTMusicGenres(genresToAdd);
             this.insertIntoTjMusicAlbumsArtists(albumsToAdd);
+            this.insertIntoTjMusicAlbumsGenres(albumsToAdd);
             System.out.println("postArtist repository logic done");
         } catch (Exception e) {
             System.out.println(e);
@@ -80,6 +83,43 @@ public class MusicRepository {
             this.logger.error("MusicRepository - insertIntoTjMusicAlbumsArtists(albumsToAdd) failed");
             throw e;
         }
+    }
+
+    private void insertIntoTjMusicAlbumsGenres(ArrayList<SpotifySimplifiedAlbum> albumsToAdd) {
+        String query = "INSERT INTO tj_music_albums_genres (c_album_spotify_id, c_genres_spotify_id) VALUES\n";
+        boolean areValuesEmpty = true;
+
+        int albumsIndex = 1;
+        int albumsNumber = albumsToAdd.size();
+        for (SpotifySimplifiedAlbum album : albumsToAdd) {
+            String[] genres = album.getGenres();
+            String albumSpotifyId = album.getSpotifyId();
+
+            int genresIndex = 1;
+            int genresNumber = genres.length;
+            for (String genre : genres) {
+                query += "('" + albumSpotifyId + "','" + genre + "')";
+
+                if (genresIndex == genresNumber && albumsIndex == albumsNumber) {
+                    query += ";";
+                } else {
+                    query += ",\n";
+                }
+                areValuesEmpty = false;
+                genresIndex++;
+            }
+            albumsIndex++;
+        }
+
+        if (!areValuesEmpty) {
+            try {
+                jdbcTemplate.update(query);
+            } catch (Exception e) {
+                this.logger.error("MusicRepository - insertIntoTjMusicAlbumsGenres(albumsToAdd) failed");
+                throw e;
+            }
+        }
+
     }
 
     private void insertIntoTMusicAlbums(ArrayList<SpotifySimplifiedAlbum> albumsToAdd) {
