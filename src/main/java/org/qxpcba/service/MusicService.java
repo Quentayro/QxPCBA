@@ -80,6 +80,15 @@ public class MusicService {
                 }
             }
 
+            HashSet<String> addedArtistsSpotifyIds = this.musicRepository.selectSpotifyIdsFromTMusicArtists();
+
+            ArrayList<SpotifyArtist> filteredArtistsToAdd = new ArrayList<SpotifyArtist>();
+            for (SpotifyArtist artist : artistsToAdd) {
+                if (!addedArtistsSpotifyIds.contains(artist.getSpotifyId())) {
+                    filteredArtistsToAdd.add(artist);
+                }
+            }
+
             HashSet<String> addedGenresSpotifyIds = this.musicRepository.selectSpotifyIdsFromTMusicGenres();
 
             HashSet<String> filteredGenresToAdd = new HashSet<String>();
@@ -98,7 +107,14 @@ public class MusicService {
                 }
             }
 
-            // TODO : Get necessary data and filter what is already here
+            HashSet<String> addedButNotSuggestedArtists = this.musicRepository.selectAddedArtistsSpotifyIds();
+
+            ArrayList<SpotifyArtist> filteredSuggestedArtistsToAdd = new ArrayList<SpotifyArtist>();
+            for (SpotifyArtist artist : artistsToAdd) {
+                if (!addedButNotSuggestedArtists.contains(artist.getSpotifyId())) {
+                    filteredSuggestedArtistsToAdd.add(artist);
+                }
+            }
             // TODO : Maybe use HashSet instead of HashMap and ArrayList
 
             this.musicRepository.postArtist(albumsToAdd, artistSpotifyId, artistsToAdd, genresToAdd,
