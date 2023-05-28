@@ -37,8 +37,6 @@ public class MusicService {
     }
 
     public String postArtist(String artistSpotifyId) {
-        System.out.println("XXX - POST ARTIST - XXX"); // TODO : delete
-        System.out.println("artistSpotifyId : " + artistSpotifyId); // TODO : delete
         try {
             ArrayList<SpotifySimplifiedAlbum> albumsToAdd = this.spotifyGetAlbums(artistSpotifyId);
 
