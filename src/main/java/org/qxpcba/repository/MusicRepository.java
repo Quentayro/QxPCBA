@@ -248,36 +248,18 @@ public class MusicRepository {
     public void postArtist(ArrayList<SpotifySimplifiedAlbum> albumsToAdd, String artistSpotifyId,
             ArrayList<SpotifyArtist> artistsToAdd,
             HashSet<String> genresToAdd,
+            ArrayList<SpotifyArtist> suggestedArtistsToAdd,
             ArrayList<SpotifySimplifiedTrack> tracksToAdd) {
         try {
-            // TODO : Delete the following queries
-            jdbcTemplate.update("DELETE FROM tj_music_artists_tracks;");
-            jdbcTemplate.update("ALTER TABLE tj_music_artists_tracks AUTO_INCREMENT = 1");
-            jdbcTemplate.update("DELETE FROM tj_music_artists_genres;");
-            jdbcTemplate.update("ALTER TABLE tj_music_artists_genres AUTO_INCREMENT = 1");
-            jdbcTemplate.update("DELETE FROM tj_music_artists_artists;");
-            jdbcTemplate.update("ALTER TABLE tj_music_artists_artists AUTO_INCREMENT = 1");
-            jdbcTemplate.update("DELETE FROM tj_music_albums_genres;");
-            jdbcTemplate.update("ALTER TABLE tj_music_albums_genres AUTO_INCREMENT = 1");
-            jdbcTemplate.update("DELETE FROM tj_music_albums_artists;");
-            jdbcTemplate.update("ALTER TABLE tj_music_albums_artists AUTO_INCREMENT = 1");
-            jdbcTemplate.update("DELETE FROM t_music_tracks;");
-            jdbcTemplate.update("ALTER TABLE t_music_tracks AUTO_INCREMENT = 1");
-            jdbcTemplate.update("DELETE FROM t_music_albums;");
-            jdbcTemplate.update("ALTER TABLE t_music_albums AUTO_INCREMENT = 1");
-            jdbcTemplate.update("DELETE FROM t_music_artists;");
-            jdbcTemplate.update("ALTER TABLE t_music_artists AUTO_INCREMENT = 1");
-            jdbcTemplate.update("DELETE FROM t_music_genres;");
-            jdbcTemplate.update("ALTER TABLE t_music_genres AUTO_INCREMENT = 1");
-            // this.insertIntoTMusicArtists(artistsToAdd); //
-            // this.insertIntoTMusicAlbums(albumsToAdd); //
-            // this.insertIntoTMusicTracks(tracksToAdd); //
-            // this.insertIntoTMusicGenres(genresToAdd); //
-            // this.insertIntoTjMusicAlbumsArtists(albumsToAdd); //
-            // this.insertIntoTjMusicAlbumsGenres(albumsToAdd); //
-            // this.insertIntoTjMusicArtistsArtists(artistSpotifyId, artistsToAdd); //
-            // this.insertIntoTjMusicArtistsGenres(artistsToAdd); //
-            // this.insertIntoTjMusicArtiststracks(tracksToAdd); //
+            this.insertIntoTMusicArtists(artistsToAdd);
+            this.insertIntoTMusicAlbums(albumsToAdd);
+            this.insertIntoTMusicTracks(tracksToAdd);
+            this.insertIntoTMusicGenres(genresToAdd);
+            this.insertIntoTjMusicAlbumsArtists(albumsToAdd);
+            this.insertIntoTjMusicAlbumsGenres(albumsToAdd);
+            this.insertIntoTjMusicArtistsArtists(artistSpotifyId, suggestedArtistsToAdd);
+            this.insertIntoTjMusicArtistsGenres(artistsToAdd);
+            this.insertIntoTjMusicArtiststracks(tracksToAdd);
             System.out.println("postArtist repository logic done");
         } catch (Exception e) {
             System.out.println(e);
@@ -291,9 +273,14 @@ public class MusicRepository {
 
         HashSet<String> addedArtistsSpotifyIds = new HashSet<String>();
 
-        List<Map<String, Object>> addedArtistsSpotifyIdList = this.jdbcTemplate.queryForList(query);
-        for (Map<String, Object> addedArtistSpotifyIdResult : addedArtistsSpotifyIdList) {
-            addedArtistsSpotifyIds.add(addedArtistSpotifyIdResult.get("c_spotify_id").toString());
+        try {
+            List<Map<String, Object>> addedArtistsSpotifyIdList = this.jdbcTemplate.queryForList(query);
+            for (Map<String, Object> addedArtistSpotifyIdResult : addedArtistsSpotifyIdList) {
+                addedArtistsSpotifyIds.add(addedArtistSpotifyIdResult.get("c_spotify_id").toString());
+            }
+        } catch (Exception e) {
+            this.logger.error("MusicRepository - selectAddedArtistsSpotifyIds() failed");
+            throw e;
         }
 
         return addedArtistsSpotifyIds;
@@ -304,9 +291,14 @@ public class MusicRepository {
 
         HashSet<String> albumsSpotifyIds = new HashSet<String>();
 
-        List<Map<String, Object>> albumsSpotifyIdList = this.jdbcTemplate.queryForList(query);
-        for (Map<String, Object> albumSpotifyIdResult : albumsSpotifyIdList) {
-            albumsSpotifyIds.add(albumSpotifyIdResult.get("c_spotify_id").toString());
+        try {
+            List<Map<String, Object>> albumsSpotifyIdList = this.jdbcTemplate.queryForList(query);
+            for (Map<String, Object> albumSpotifyIdResult : albumsSpotifyIdList) {
+                albumsSpotifyIds.add(albumSpotifyIdResult.get("c_spotify_id").toString());
+            }
+        } catch (Exception e) {
+            this.logger.error("MusicRepository - selectSpotifyIdsFromTMusicAlbums() failed");
+            throw e;
         }
 
         return albumsSpotifyIds;
@@ -317,9 +309,14 @@ public class MusicRepository {
 
         HashSet<String> artistsSpotifyIds = new HashSet<String>();
 
-        List<Map<String, Object>> artistsSpotifyIdList = this.jdbcTemplate.queryForList(query);
-        for (Map<String, Object> artistSpotifyIdResult : artistsSpotifyIdList) {
-            artistsSpotifyIds.add(artistSpotifyIdResult.get("c_spotify_id").toString());
+        try {
+            List<Map<String, Object>> artistsSpotifyIdList = this.jdbcTemplate.queryForList(query);
+            for (Map<String, Object> artistSpotifyIdResult : artistsSpotifyIdList) {
+                artistsSpotifyIds.add(artistSpotifyIdResult.get("c_spotify_id").toString());
+            }
+        } catch (Exception e) {
+            this.logger.error("MusicRepository - selectSpotifyIdsFromTMusicArtists() failed");
+            throw e;
         }
 
         return artistsSpotifyIds;
@@ -330,9 +327,14 @@ public class MusicRepository {
 
         HashSet<String> genresSpotifyIds = new HashSet<String>();
 
-        List<Map<String, Object>> genresSpotifyIdList = this.jdbcTemplate.queryForList(query);
-        for (Map<String, Object> genreSpotifyIdResult : genresSpotifyIdList) {
-            genresSpotifyIds.add(genreSpotifyIdResult.get("c_spotify_id").toString());
+        try {
+            List<Map<String, Object>> genresSpotifyIdList = this.jdbcTemplate.queryForList(query);
+            for (Map<String, Object> genreSpotifyIdResult : genresSpotifyIdList) {
+                genresSpotifyIds.add(genreSpotifyIdResult.get("c_spotify_id").toString());
+            }
+        } catch (Exception e) {
+            this.logger.error("MusicRepository - selectSpotifyIdsFromTMusicGenres() failed");
+            throw e;
         }
 
         return genresSpotifyIds;
@@ -343,9 +345,14 @@ public class MusicRepository {
 
         HashSet<String> tracksSpotifyIds = new HashSet<String>();
 
-        List<Map<String, Object>> tracksSpotifyIdList = this.jdbcTemplate.queryForList(query);
-        for (Map<String, Object> trackSpotifyIdResult : tracksSpotifyIdList) {
-            tracksSpotifyIds.add(trackSpotifyIdResult.get("c_spotify_id").toString());
+        try {
+            List<Map<String, Object>> tracksSpotifyIdList = this.jdbcTemplate.queryForList(query);
+            for (Map<String, Object> trackSpotifyIdResult : tracksSpotifyIdList) {
+                tracksSpotifyIds.add(trackSpotifyIdResult.get("c_spotify_id").toString());
+            }
+        } catch (Exception e) {
+            this.logger.error("MusicRepository - selectSpotifyIdsFromTMusicTracks() failed");
+            throw e;
         }
 
         return tracksSpotifyIds;

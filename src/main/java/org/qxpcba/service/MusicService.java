@@ -11,6 +11,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.http.MediaType;
 import org.springframework.stereotype.Service;
 import org.springframework.web.reactive.function.client.WebClient;
+
 import org.qxpcba.model.music.SpotifyArtist;
 import org.qxpcba.model.music.SpotifyGetAcessTokenResponse;
 import org.qxpcba.model.music.SpotifyGetAlbumTracksResponse;
@@ -36,91 +37,95 @@ public class MusicService {
         this.musicRepository = musicRepository;
     }
 
-    public String postArtist(String artistSpotifyId) {
+    public String postArtist(String artistSpotifyId) throws Exception {
         try {
-            ArrayList<SpotifySimplifiedAlbum> albumsToAdd = this.spotifyGetAlbums(artistSpotifyId);
+            HashSet<String> addedButNotSuggestedArtists = this.musicRepository.selectAddedArtistsSpotifyIds();
+            if (!addedButNotSuggestedArtists.contains(artistSpotifyId)) {
+                ArrayList<SpotifySimplifiedAlbum> albumsToAdd = this.spotifyGetAlbums(artistSpotifyId);
 
-            ArrayList<SpotifySimplifiedTrack> tracksToAdd = new ArrayList<SpotifySimplifiedTrack>();
-            for (SpotifySimplifiedAlbum album : albumsToAdd) {
-                tracksToAdd.addAll(this.spotifyGetAlbumTracks(album.getSpotifyId()));
-            }
+                ArrayList<SpotifySimplifiedTrack> tracksToAdd = new ArrayList<SpotifySimplifiedTrack>();
+                for (SpotifySimplifiedAlbum album : albumsToAdd) {
+                    tracksToAdd.addAll(this.spotifyGetAlbumTracks(album.getSpotifyId()));
+                }
 
-            HashSet<String> genresToAdd = new HashSet<String>();
+                HashSet<String> genresToAdd = new HashSet<String>();
 
-            HashMap<String, Boolean> artistsToAddSpotifyIds = this.spotifyGetArtistRelatedArtistsIds(artistSpotifyId);
-            for (SpotifySimplifiedAlbum album : albumsToAdd) {
-                for (SpotifySimplifiedArtist artist : album.getArtists()) {
-                    artistsToAddSpotifyIds.put(artist.getSpotifyId(), true);
+                HashMap<String, Boolean> artistsToAddSpotifyIds = this
+                        .spotifyGetArtistRelatedArtistsIds(artistSpotifyId);
+                for (SpotifySimplifiedAlbum album : albumsToAdd) {
+                    for (SpotifySimplifiedArtist artist : album.getArtists()) {
+                        artistsToAddSpotifyIds.put(artist.getSpotifyId(), true);
 
-                    for (String genre : album.getGenres()) {
+                        for (String genre : album.getGenres()) {
+                            genresToAdd.add(genre);
+                        }
+                    }
+                }
+                for (SpotifySimplifiedTrack track : tracksToAdd) {
+                    for (SpotifySimplifiedArtist artist : track.getArtists()) {
+                        artistsToAddSpotifyIds.put(artist.getSpotifyId(), true);
+                    }
+                }
+                ArrayList<SpotifyArtist> artistsToAdd = this.spotifyGetArtists(artistsToAddSpotifyIds);
+
+                for (SpotifyArtist artist : artistsToAdd) {
+                    for (String genre : artist.getGenres()) {
                         genresToAdd.add(genre);
                     }
                 }
-            }
-            for (SpotifySimplifiedTrack track : tracksToAdd) {
-                for (SpotifySimplifiedArtist artist : track.getArtists()) {
-                    artistsToAddSpotifyIds.put(artist.getSpotifyId(), true);
+
+                // Filtering data to add according to what is already in the database
+                HashSet<String> addedAlbumsSpotifyIds = this.musicRepository.selectSpotifyIdsFromTMusicAlbums();
+
+                ArrayList<SpotifySimplifiedAlbum> filteredAlbumsToAdd = new ArrayList<SpotifySimplifiedAlbum>();
+                for (SpotifySimplifiedAlbum album : albumsToAdd) {
+                    if (!addedAlbumsSpotifyIds.contains(album.getSpotifyId())) {
+                        filteredAlbumsToAdd.add(album);
+                    }
                 }
-            }
-            ArrayList<SpotifyArtist> artistsToAdd = this.spotifyGetArtists(artistsToAddSpotifyIds);
 
-            for (SpotifyArtist artist : artistsToAdd) {
-                for (String genre : artist.getGenres()) {
-                    genresToAdd.add(genre);
+                HashSet<String> addedArtistsSpotifyIds = this.musicRepository.selectSpotifyIdsFromTMusicArtists();
+
+                ArrayList<SpotifyArtist> filteredArtistsToAdd = new ArrayList<SpotifyArtist>();
+                for (SpotifyArtist artist : artistsToAdd) {
+                    if (!addedArtistsSpotifyIds.contains(artist.getSpotifyId())) {
+                        filteredArtistsToAdd.add(artist);
+                    }
                 }
-            }
 
-            // Filtering data to add according to what is already in the database
-            HashSet<String> addedAlbumsSpotifyIds = this.musicRepository.selectSpotifyIdsFromTMusicAlbums();
+                HashSet<String> addedGenresSpotifyIds = this.musicRepository.selectSpotifyIdsFromTMusicGenres();
 
-            ArrayList<SpotifySimplifiedAlbum> filteredAlbumsToAdd = new ArrayList<SpotifySimplifiedAlbum>();
-            for (SpotifySimplifiedAlbum album : albumsToAdd) {
-                if (!addedAlbumsSpotifyIds.contains(album.getSpotifyId())) {
-                    filteredAlbumsToAdd.add(album);
+                HashSet<String> filteredGenresToAdd = new HashSet<String>();
+                for (String genre : genresToAdd) {
+                    if (!addedGenresSpotifyIds.contains(genre)) {
+                        filteredGenresToAdd.add(genre);
+                    }
                 }
-            }
 
-            HashSet<String> addedArtistsSpotifyIds = this.musicRepository.selectSpotifyIdsFromTMusicArtists();
+                HashSet<String> addedTracksSpotifyIds = this.musicRepository.selectSpotifyIdsFromTMusicTracks();
 
-            ArrayList<SpotifyArtist> filteredArtistsToAdd = new ArrayList<SpotifyArtist>();
-            for (SpotifyArtist artist : artistsToAdd) {
-                if (!addedArtistsSpotifyIds.contains(artist.getSpotifyId())) {
-                    filteredArtistsToAdd.add(artist);
+                ArrayList<SpotifySimplifiedTrack> filteredTracksToAdd = new ArrayList<SpotifySimplifiedTrack>();
+                for (SpotifySimplifiedTrack track : tracksToAdd) {
+                    if (!addedTracksSpotifyIds.contains(track.getSpotifyId())) {
+                        filteredTracksToAdd.add(track);
+                    }
                 }
-            }
 
-            HashSet<String> addedGenresSpotifyIds = this.musicRepository.selectSpotifyIdsFromTMusicGenres();
-
-            HashSet<String> filteredGenresToAdd = new HashSet<String>();
-            for (String genre : genresToAdd) {
-                if (!addedGenresSpotifyIds.contains(genre)) {
-                    filteredGenresToAdd.add(genre);
+                ArrayList<SpotifyArtist> filteredSuggestedArtistsToAdd = new ArrayList<SpotifyArtist>();
+                for (SpotifyArtist artist : artistsToAdd) {
+                    if (!addedButNotSuggestedArtists.contains(artist.getSpotifyId())) {
+                        filteredSuggestedArtistsToAdd.add(artist);
+                    }
                 }
+                // TODO : Maybe use HashSet instead of HashMap and ArrayList
+                // TODO : Additional stuff to do if the artist was suggested
+
+                this.musicRepository.postArtist(filteredAlbumsToAdd, artistSpotifyId, filteredArtistsToAdd,
+                        filteredGenresToAdd, filteredSuggestedArtistsToAdd, filteredTracksToAdd);
+            } else {
+                throw new Exception();
             }
-
-            HashSet<String> addedTracksSpotifyIds = this.musicRepository.selectSpotifyIdsFromTMusicTracks();
-
-            ArrayList<SpotifySimplifiedTrack> filteredTracksToAdd = new ArrayList<SpotifySimplifiedTrack>();
-            for (SpotifySimplifiedTrack track : tracksToAdd) {
-                if (!addedTracksSpotifyIds.contains(track.getSpotifyId())) {
-                    filteredTracksToAdd.add(track);
-                }
-            }
-
-            HashSet<String> addedButNotSuggestedArtists = this.musicRepository.selectAddedArtistsSpotifyIds();
-
-            ArrayList<SpotifyArtist> filteredSuggestedArtistsToAdd = new ArrayList<SpotifyArtist>();
-            for (SpotifyArtist artist : artistsToAdd) {
-                if (!addedButNotSuggestedArtists.contains(artist.getSpotifyId())) {
-                    filteredSuggestedArtistsToAdd.add(artist);
-                }
-            }
-            // TODO : Maybe use HashSet instead of HashMap and ArrayList
-
-            this.musicRepository.postArtist(albumsToAdd, artistSpotifyId, artistsToAdd, genresToAdd,
-                    tracksToAdd);
         } catch (Exception e) {
-            System.out.println(e);
             this.logger.error("MusicService - postArtist(" + artistSpotifyId + ") failed");
             throw e;
         }
