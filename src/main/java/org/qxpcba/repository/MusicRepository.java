@@ -27,6 +27,8 @@ public class MusicRepository {
             ArrayList<SpotifySimplifiedTrack> tracksToAdd) {
         try {
             // TODO : Delete the following queries
+            jdbcTemplate.update("DELETE FROM tj_music_artists_genres;");
+            jdbcTemplate.update("ALTER TABLE tj_music_artists_genres AUTO_INCREMENT = 1");
             jdbcTemplate.update("DELETE FROM tj_music_artists_artists;");
             jdbcTemplate.update("ALTER TABLE tj_music_artists_artists AUTO_INCREMENT = 1");
             jdbcTemplate.update("DELETE FROM tj_music_albums_genres;");
@@ -48,6 +50,7 @@ public class MusicRepository {
             this.insertIntoTjMusicAlbumsArtists(albumsToAdd);
             this.insertIntoTjMusicAlbumsGenres(albumsToAdd);
             this.insertIntoTjMusicArtistsArtists(artistSpotifyId, artistsToAdd);
+            this.insertIntoTjMusicArtistsGenres(artistsToAdd);
             System.out.println("postArtist repository logic done");
         } catch (Exception e) {
             System.out.println(e);
@@ -150,6 +153,28 @@ public class MusicRepository {
         } catch (Exception e) {
             this.logger
                     .error("MusicRepository - insertIntoTjMusicArtistsArtists(artistSpotifyId, artistsToAdd) failed");
+            throw e;
+        }
+    }
+
+    private void insertIntoTjMusicArtistsGenres(ArrayList<SpotifyArtist> artistsToAdd) {
+        String query = "INSERT INTO tj_music_artists_genres (c_artist_spotify_id, c_genres_spotify_id) VALUES\n";
+
+        for (SpotifyArtist artist : artistsToAdd) {
+            String[] genres = artist.getGenres();
+            String artistSpotifyid = artist.getSpotifyId();
+
+            for (String genre : genres) {
+                query += "('" + artistSpotifyid + "','" + genre + "'),\n";
+            }
+        }
+
+        query = query.substring(0, query.length() - 2) + ";";
+
+        try {
+            jdbcTemplate.update(query);
+        } catch (Exception e) {
+            this.logger.error("MusicRepository - insertIntoTjMusicArtistsGenres(artistsToAdd) failed");
             throw e;
         }
     }
