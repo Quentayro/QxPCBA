@@ -63,26 +63,16 @@ public class MusicRepository {
     private void insertIntoTjMusicAlbumsArtists(ArrayList<SpotifySimplifiedAlbum> albumsToAdd) {
         String query = "INSERT INTO tj_music_albums_artists (c_album_spotify_id, c_artist_spotify_id) VALUES\n";
 
-        int albumsIndex = 1;
-        int albumsNumber = albumsToAdd.size();
         for (SpotifySimplifiedAlbum album : albumsToAdd) {
             SpotifySimplifiedArtist[] artists = album.getArtists();
             String albumSpotifyId = album.getSpotifyId();
 
-            int artistsIndex = 1;
-            int artistsNumber = artists.length;
             for (SpotifySimplifiedArtist artist : artists) {
-                query += "('" + albumSpotifyId + "','" + artist.getSpotifyId() + "')";
-
-                if (artistsIndex == artistsNumber && albumsIndex == albumsNumber) {
-                    query += ";";
-                } else {
-                    query += ",\n";
-                }
-                artistsIndex++;
+                query += "('" + albumSpotifyId + "','" + artist.getSpotifyId() + "'),\n";
             }
-            albumsIndex++;
         }
+
+        query = query.substring(0, query.length() - 2) + ";";
 
         try {
             jdbcTemplate.update(query);
@@ -96,27 +86,18 @@ public class MusicRepository {
         String query = "INSERT INTO tj_music_albums_genres (c_album_spotify_id, c_genres_spotify_id) VALUES\n";
         boolean areValuesEmpty = true;
 
-        int albumsIndex = 1;
-        int albumsNumber = albumsToAdd.size();
         for (SpotifySimplifiedAlbum album : albumsToAdd) {
             String[] genres = album.getGenres();
             String albumSpotifyId = album.getSpotifyId();
 
-            int genresIndex = 1;
-            int genresNumber = genres.length;
             for (String genre : genres) {
-                query += "('" + albumSpotifyId + "','" + genre + "')";
+                query += "('" + albumSpotifyId + "','" + genre + "'),\n";
 
-                if (genresIndex == genresNumber && albumsIndex == albumsNumber) {
-                    query += ";";
-                } else {
-                    query += ",\n";
-                }
                 areValuesEmpty = false;
-                genresIndex++;
             }
-            albumsIndex++;
         }
+
+        query = query.substring(0, query.length() - 2) + ";";
 
         if (!areValuesEmpty) {
             try {
@@ -132,21 +113,14 @@ public class MusicRepository {
     private void insertIntoTjMusicArtistsArtists(String artistSpotifyId, ArrayList<SpotifyArtist> artistsToAdd) {
         String query = "INSERT INTO tj_music_artists_artists (c_artist_spotify_id, c_suggested_artist_spotify_id) VALUES\n";
 
-        int artistsNumber = artistsToAdd.size();
-        int index = 1;
         for (SpotifyArtist artist : artistsToAdd) {
             String suggestedArtistSpotifyId = artist.getSpotifyId();
             if (!artistSpotifyId.equals(suggestedArtistSpotifyId)) {
-                query += "('" + artistSpotifyId + "','" + suggestedArtistSpotifyId + "')";
-                if (index == artistsNumber) {
-                    query += ";";
-                } else {
-                    query += ",\n";
-                }
+                query += "('" + artistSpotifyId + "','" + suggestedArtistSpotifyId + "'),\n";
             }
-
-            index++;
         }
+
+        query = query.substring(0, query.length() - 2) + ";";
 
         try {
             jdbcTemplate.update(query);
@@ -182,8 +156,6 @@ public class MusicRepository {
     private void insertIntoTMusicAlbums(ArrayList<SpotifySimplifiedAlbum> albumsToAdd) {
         String query = "INSERT INTO t_music_albums (c_name, c_picture, c_release_day, c_release_month, c_release_year, c_spotify_id, c_tracks_number, c_type) VALUES\n";
 
-        int albumsNumber = albumsToAdd.size();
-        int index = 1;
         for (SpotifySimplifiedAlbum album : albumsToAdd) {
             query += "('" + album.getName().replaceAll("'", "''") + "','" + album.getPicture() + "',";
             String[] releaseDate = album.getReleaseDate().split("-");
@@ -201,14 +173,10 @@ public class MusicRepository {
             }
             query += "," + releaseDate[0] + ",'" + album.getSpotifyId() + "'," +
                     album.getTracksNumber() + ",'"
-                    + album.getAlbumType() + "')";
-            if (index == albumsNumber) {
-                query += ";";
-            } else {
-                query += ",\n";
-            }
-            index++;
+                    + album.getAlbumType() + "'),\n";
         }
+
+        query = query.substring(0, query.length() - 2) + ";";
 
         try {
             jdbcTemplate.update(query);
@@ -221,8 +189,6 @@ public class MusicRepository {
     private void insertIntoTMusicArtists(ArrayList<SpotifyArtist> artistsToAdd) {
         String query = "INSERT INTO t_music_artists (c_name, c_picture, c_spotify_id) VALUES\n";
 
-        int artistsNumber = artistsToAdd.size();
-        int index = 1;
         for (SpotifyArtist artist : artistsToAdd) {
             query += "('" + artist.getName().replaceAll("'", "''") + "',";
             if (artist.getPicture() == null) {
@@ -230,14 +196,10 @@ public class MusicRepository {
             } else {
                 query += "'" + artist.getPicture() + "'";
             }
-            query += ",'" + artist.getSpotifyId() + "')";
-            if (index == artistsNumber) {
-                query += ";";
-            } else {
-                query += ",\n";
-            }
-            index++;
+            query += ",'" + artist.getSpotifyId() + "'),\n";
         }
+
+        query = query.substring(0, query.length() - 2) + ";";
 
         try {
             jdbcTemplate.update(query);
@@ -250,17 +212,11 @@ public class MusicRepository {
     private void insertIntoTMusicGenres(HashSet<String> genresToAdd) {
         String query = "INSERT INTO t_music_genres (c_spotify_id) VALUES\n";
 
-        int genresNumber = genresToAdd.size();
-        int index = 1;
         for (String genre : genresToAdd) {
-            query += "('" + genre + "')";
-            if (index == genresNumber) {
-                query += ";";
-            } else {
-                query += ",\n";
-            }
-            index++;
+            query += "('" + genre + "'),\n";
         }
+
+        query = query.substring(0, query.length() - 2) + ";";
 
         try {
             jdbcTemplate.update(query);
@@ -273,19 +229,13 @@ public class MusicRepository {
     private void insertIntoTMusicTracks(ArrayList<SpotifySimplifiedTrack> tracksToAdd) {
         String query = "INSERT INTO t_music_tracks (c_album_spotify_id, c_disc_number, c_duration, c_name, c_order, c_spotify_id) VALUES\n";
 
-        int index = 1;
-        int tracksNumber = tracksToAdd.size();
         for (SpotifySimplifiedTrack track : tracksToAdd) {
             query += "('" + track.getAlbumSpotifyId() + "'," + track.getDiscNumber() + "," + track.getDuration() + ",'"
                     + track.getName().replaceAll("'", "''") + "'," + track.getOrder() + ",'" + track.getSpotifyId()
-                    + "')";
-            if (index == tracksNumber) {
-                query += ";";
-            } else {
-                query += ",\n";
-            }
-            index++;
+                    + "'),\n";
         }
+
+        query = query.substring(0, query.length() - 2) + ";";
 
         try {
             jdbcTemplate.update(query);
