@@ -118,7 +118,6 @@ public class MusicService {
                     }
                 }
                 // TODO : Maybe use HashSet instead of HashMap and ArrayList
-                // TODO : Additional stuff to do if the artist was suggested
 
                 this.musicRepository.postArtist(filteredAlbumsToAdd, artistSpotifyId, filteredArtistsToAdd,
                         filteredGenresToAdd, filteredSuggestedArtistsToAdd, filteredTracksToAdd);

@@ -23,9 +23,22 @@ public class MusicRepository {
         this.jdbcTemplate = jdbcTemplate;
     }
 
+    private void deleteSuggestedArtistSuggestions(String artistSpotifyId) {
+        String query = "DELETE FROM tj_music_artists_artists WHERE c_suggested_artist_spotify_id = '" + artistSpotifyId
+                + "';";
+
+        try {
+            this.jdbcTemplate.update(query);
+        } catch (Exception e) {
+            this.logger.error("MusicRepository - deleteSuggestedArtistSuggestions(artistSpotifyId) failed");
+            throw e;
+        }
+    }
+
     private void insertIntoTjMusicAlbumsArtists(ArrayList<SpotifySimplifiedAlbum> albumsToAdd) {
         if (albumsToAdd.size() != 0) {
             String query = "INSERT INTO tj_music_albums_artists (c_album_spotify_id, c_artist_spotify_id) VALUES\n";
+            boolean areValuesEmpty = true;
 
             for (SpotifySimplifiedAlbum album : albumsToAdd) {
                 SpotifySimplifiedArtist[] artists = album.getArtists();
@@ -33,19 +46,22 @@ public class MusicRepository {
 
                 for (SpotifySimplifiedArtist artist : artists) {
                     query += "('" + albumSpotifyId + "','" + artist.getSpotifyId() + "'),\n";
+
+                    areValuesEmpty = false;
                 }
             }
 
             query = query.substring(0, query.length() - 2) + ";";
 
-            try {
-                this.jdbcTemplate.update(query);
-            } catch (Exception e) {
-                this.logger.error("MusicRepository - insertIntoTjMusicAlbumsArtists(albumsToAdd) failed");
-                throw e;
+            if (!areValuesEmpty) {
+                try {
+                    this.jdbcTemplate.update(query);
+                } catch (Exception e) {
+                    this.logger.error("MusicRepository - insertIntoTjMusicAlbumsArtists(albumsToAdd) failed");
+                    throw e;
+                }
             }
         }
-
     }
 
     private void insertIntoTjMusicAlbumsGenres(ArrayList<SpotifySimplifiedAlbum> albumsToAdd) {
@@ -80,28 +96,34 @@ public class MusicRepository {
     private void insertIntoTjMusicArtistsArtists(String artistSpotifyId,
             ArrayList<SpotifyArtist> suggestedArtistsToAdd) {
         String query = "INSERT INTO tj_music_artists_artists (c_artist_spotify_id, c_suggested_artist_spotify_id) VALUES\n";
+        boolean areValuesEmpty = true;
 
         for (SpotifyArtist artist : suggestedArtistsToAdd) {
             String suggestedArtistSpotifyId = artist.getSpotifyId();
             if (!artistSpotifyId.equals(suggestedArtistSpotifyId)) {
                 query += "('" + artistSpotifyId + "','" + suggestedArtistSpotifyId + "'),\n";
+
+                areValuesEmpty = false;
             }
         }
 
         query = query.substring(0, query.length() - 2) + ";";
 
-        try {
-            this.jdbcTemplate.update(query);
-        } catch (Exception e) {
-            this.logger
-                    .error("MusicRepository - insertIntoTjMusicArtistsArtists(artistSpotifyId, suggestedArtistsToAdd) failed");
-            throw e;
+        if (!areValuesEmpty) {
+            try {
+                this.jdbcTemplate.update(query);
+            } catch (Exception e) {
+                this.logger
+                        .error("MusicRepository - insertIntoTjMusicArtistsArtists(artistSpotifyId, suggestedArtistsToAdd) failed");
+                throw e;
+            }
         }
     }
 
     private void insertIntoTjMusicArtistsGenres(ArrayList<SpotifyArtist> artistsToAdd) {
         if (artistsToAdd.size() != 0) {
             String query = "INSERT INTO tj_music_artists_genres (c_artist_spotify_id, c_genres_spotify_id) VALUES\n";
+            boolean areValuesEmpty = true;
 
             for (SpotifyArtist artist : artistsToAdd) {
                 String[] genres = artist.getGenres();
@@ -109,16 +131,20 @@ public class MusicRepository {
 
                 for (String genre : genres) {
                     query += "('" + artistSpotifyid + "','" + genre + "'),\n";
+
+                    areValuesEmpty = false;
                 }
             }
 
             query = query.substring(0, query.length() - 2) + ";";
 
-            try {
-                this.jdbcTemplate.update(query);
-            } catch (Exception e) {
-                this.logger.error("MusicRepository - insertIntoTjMusicArtistsGenres(artistsToAdd) failed");
-                throw e;
+            if (!areValuesEmpty) {
+                try {
+                    this.jdbcTemplate.update(query);
+                } catch (Exception e) {
+                    this.logger.error("MusicRepository - insertIntoTjMusicArtistsGenres(artistsToAdd) failed");
+                    throw e;
+                }
             }
         }
     }
@@ -126,20 +152,25 @@ public class MusicRepository {
     private void insertIntoTjMusicArtiststracks(ArrayList<SpotifySimplifiedTrack> tracksToAdd) {
         if (tracksToAdd.size() != 0) {
             String query = "INSERT INTO tj_music_artists_tracks (c_artist_spotify_id, c_track_spotify_id) VALUES\n";
+            boolean areValuesEmpty = true;
 
             for (SpotifySimplifiedTrack track : tracksToAdd) {
                 for (SpotifySimplifiedArtist artist : track.getArtists()) {
                     query += "('" + artist.getSpotifyId() + "','" + track.getSpotifyId() + "'),\n";
+
+                    areValuesEmpty = false;
                 }
             }
 
             query = query.substring(0, query.length() - 2) + ";";
 
-            try {
-                this.jdbcTemplate.update(query);
-            } catch (Exception e) {
-                this.logger.error("MusicRepository - insertIntoTjMusicArtiststracks(tracksToAdd) failed");
-                throw e;
+            if (!areValuesEmpty) {
+                try {
+                    this.jdbcTemplate.update(query);
+                } catch (Exception e) {
+                    this.logger.error("MusicRepository - insertIntoTjMusicArtiststracks(tracksToAdd) failed");
+                    throw e;
+                }
             }
         }
     }
@@ -147,6 +178,7 @@ public class MusicRepository {
     private void insertIntoTMusicAlbums(ArrayList<SpotifySimplifiedAlbum> albumsToAdd) {
         if (albumsToAdd.size() != 0) {
             String query = "INSERT INTO t_music_albums (c_name, c_picture, c_release_day, c_release_month, c_release_year, c_spotify_id, c_tracks_number, c_type) VALUES\n";
+            boolean areValuesEmpty = true;
 
             for (SpotifySimplifiedAlbum album : albumsToAdd) {
                 query += "('" + album.getName().replaceAll("'", "''") + "','" + album.getPicture() + "',";
@@ -166,15 +198,19 @@ public class MusicRepository {
                 query += "," + releaseDate[0] + ",'" + album.getSpotifyId() + "'," +
                         album.getTracksNumber() + ",'"
                         + album.getAlbumType() + "'),\n";
+
+                areValuesEmpty = false;
             }
 
             query = query.substring(0, query.length() - 2) + ";";
 
-            try {
-                this.jdbcTemplate.update(query);
-            } catch (Exception e) {
-                this.logger.error("MusicRepository - insertIntoTMusicAlbums(albumsToAdd) failed");
-                throw e;
+            if (!areValuesEmpty) {
+                try {
+                    this.jdbcTemplate.update(query);
+                } catch (Exception e) {
+                    this.logger.error("MusicRepository - insertIntoTMusicAlbums(albumsToAdd) failed");
+                    throw e;
+                }
             }
         }
     }
@@ -182,6 +218,7 @@ public class MusicRepository {
     private void insertIntoTMusicArtists(ArrayList<SpotifyArtist> artistsToAdd) {
         if (artistsToAdd.size() != 0) {
             String query = "INSERT INTO t_music_artists (c_name, c_picture, c_spotify_id) VALUES\n";
+            boolean areValuesEmpty = true;
 
             for (SpotifyArtist artist : artistsToAdd) {
                 query += "('" + artist.getName().replaceAll("'", "''") + "',";
@@ -191,15 +228,19 @@ public class MusicRepository {
                     query += "'" + artist.getPicture() + "'";
                 }
                 query += ",'" + artist.getSpotifyId() + "'),\n";
+
+                areValuesEmpty = false;
             }
 
             query = query.substring(0, query.length() - 2) + ";";
 
-            try {
-                this.jdbcTemplate.update(query);
-            } catch (Exception e) {
-                this.logger.error("MusicRepository - insertIntoTMusicArtists(artistsToAdd) failed");
-                throw e;
+            if (!areValuesEmpty) {
+                try {
+                    this.jdbcTemplate.update(query);
+                } catch (Exception e) {
+                    this.logger.error("MusicRepository - insertIntoTMusicArtists(artistsToAdd) failed");
+                    throw e;
+                }
             }
         }
     }
@@ -207,18 +248,23 @@ public class MusicRepository {
     private void insertIntoTMusicGenres(HashSet<String> genresToAdd) {
         if (genresToAdd.size() != 0) {
             String query = "INSERT INTO t_music_genres (c_spotify_id) VALUES\n";
+            boolean areValuesEmpty = true;
 
             for (String genre : genresToAdd) {
                 query += "('" + genre + "'),\n";
+
+                areValuesEmpty = false;
             }
 
             query = query.substring(0, query.length() - 2) + ";";
 
-            try {
-                this.jdbcTemplate.update(query);
-            } catch (Exception e) {
-                this.logger.error("MusicRepository - insertIntoTMusicGenres(genresToAdd) failed");
-                throw e;
+            if (!areValuesEmpty) {
+                try {
+                    this.jdbcTemplate.update(query);
+                } catch (Exception e) {
+                    this.logger.error("MusicRepository - insertIntoTMusicGenres(genresToAdd) failed");
+                    throw e;
+                }
             }
         }
     }
@@ -226,21 +272,26 @@ public class MusicRepository {
     private void insertIntoTMusicTracks(ArrayList<SpotifySimplifiedTrack> tracksToAdd) {
         if (tracksToAdd.size() != 0) {
             String query = "INSERT INTO t_music_tracks (c_album_spotify_id, c_disc_number, c_duration, c_name, c_order, c_spotify_id) VALUES\n";
+            boolean areValuesEmpty = true;
 
             for (SpotifySimplifiedTrack track : tracksToAdd) {
                 query += "('" + track.getAlbumSpotifyId() + "'," + track.getDiscNumber() + "," + track.getDuration()
                         + ",'"
                         + track.getName().replaceAll("'", "''") + "'," + track.getOrder() + ",'" + track.getSpotifyId()
                         + "'),\n";
+
+                areValuesEmpty = false;
             }
 
             query = query.substring(0, query.length() - 2) + ";";
 
-            try {
-                this.jdbcTemplate.update(query);
-            } catch (Exception e) {
-                this.logger.error("MusicRepository - insertIntoTMusicTracks(tracksToAdd) failed");
-                throw e;
+            if (!areValuesEmpty) {
+                try {
+                    this.jdbcTemplate.update(query);
+                } catch (Exception e) {
+                    this.logger.error("MusicRepository - insertIntoTMusicTracks(tracksToAdd) failed");
+                    throw e;
+                }
             }
         }
     }
@@ -260,6 +311,7 @@ public class MusicRepository {
             this.insertIntoTjMusicArtistsArtists(artistSpotifyId, suggestedArtistsToAdd);
             this.insertIntoTjMusicArtistsGenres(artistsToAdd);
             this.insertIntoTjMusicArtiststracks(tracksToAdd);
+            this.deleteSuggestedArtistSuggestions(artistSpotifyId);
             System.out.println("postArtist repository logic done");
         } catch (Exception e) {
             System.out.println(e);
