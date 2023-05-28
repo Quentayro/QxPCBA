@@ -80,6 +80,15 @@ public class MusicService {
                 }
             }
 
+            HashSet<String> addedGenresSpotifyIds = this.musicRepository.selectSpotifyIdsFromTMusicGenres();
+
+            HashSet<String> filteredGenresToAdd = new HashSet<String>();
+            for (String genre : genresToAdd) {
+                if (!addedGenresSpotifyIds.contains(genre)) {
+                    filteredGenresToAdd.add(genre);
+                }
+            }
+
             HashSet<String> addedTracksSpotifyIds = this.musicRepository.selectSpotifyIdsFromTMusicTracks();
 
             ArrayList<SpotifySimplifiedTrack> filteredTracksToAdd = new ArrayList<SpotifySimplifiedTrack>();

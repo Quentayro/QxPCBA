@@ -200,19 +200,21 @@ public class MusicRepository {
     }
 
     private void insertIntoTMusicGenres(HashSet<String> genresToAdd) {
-        String query = "INSERT INTO t_music_genres (c_spotify_id) VALUES\n";
+        if (genresToAdd.size() != 0) {
+            String query = "INSERT INTO t_music_genres (c_spotify_id) VALUES\n";
 
-        for (String genre : genresToAdd) {
-            query += "('" + genre + "'),\n";
-        }
+            for (String genre : genresToAdd) {
+                query += "('" + genre + "'),\n";
+            }
 
-        query = query.substring(0, query.length() - 2) + ";";
+            query = query.substring(0, query.length() - 2) + ";";
 
-        try {
-            this.jdbcTemplate.update(query);
-        } catch (Exception e) {
-            this.logger.error("MusicRepository - insertIntoTMusicGenres(genresToAdd) failed");
-            throw e;
+            try {
+                this.jdbcTemplate.update(query);
+            } catch (Exception e) {
+                this.logger.error("MusicRepository - insertIntoTMusicGenres(genresToAdd) failed");
+                throw e;
+            }
         }
     }
 
@@ -265,7 +267,7 @@ public class MusicRepository {
             this.insertIntoTMusicArtists(artistsToAdd);
             this.insertIntoTMusicAlbums(albumsToAdd); //
             this.insertIntoTMusicTracks(tracksToAdd); //
-            this.insertIntoTMusicGenres(genresToAdd);
+            this.insertIntoTMusicGenres(genresToAdd); //
             this.insertIntoTjMusicAlbumsArtists(albumsToAdd); //
             this.insertIntoTjMusicAlbumsGenres(albumsToAdd); //
             this.insertIntoTjMusicArtistsArtists(artistSpotifyId, artistsToAdd);
@@ -290,6 +292,19 @@ public class MusicRepository {
         }
 
         return albumsSpotifyIds;
+    }
+
+    public HashSet<String> selectSpotifyIdsFromTMusicGenres() {
+        String query = "SELECT c_spotify_id FROM t_music_genres;";
+
+        HashSet<String> genresSpotifyIds = new HashSet<String>();
+
+        List<Map<String, Object>> genresSpotifyIdList = this.jdbcTemplate.queryForList(query);
+        for (Map<String, Object> genreSpotifyIdResult : genresSpotifyIdList) {
+            genresSpotifyIds.add(genreSpotifyIdResult.get("c_spotify_id").toString());
+        }
+
+        return genresSpotifyIds;
     }
 
     public HashSet<String> selectSpotifyIdsFromTMusicTracks() {
