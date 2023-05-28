@@ -5,6 +5,7 @@ import java.util.Arrays;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.HashMap;
+import java.util.HashSet;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.http.MediaType;
@@ -46,10 +47,16 @@ public class MusicService {
                 tracksToAdd.addAll(this.spotifyGetAlbumTracks(album.getSpotifyId()));
             }
 
+            HashSet<String> genresToAdd = new HashSet<String>();
+
             HashMap<String, Boolean> artistsToAddSpotifyIds = this.spotifyGetArtistRelatedArtistsIds(artistSpotifyId);
             for (SpotifySimplifiedAlbum album : albumsToAdd) {
                 for (SpotifySimplifiedArtist artist : album.getArtists()) {
                     artistsToAddSpotifyIds.put(artist.getSpotifyId(), true);
+
+                    for (String genre : album.getGenres()) {
+                        genresToAdd.add(genre);
+                    }
                 }
             }
             for (SpotifySimplifiedTrack track : tracksToAdd) {
@@ -59,10 +66,16 @@ public class MusicService {
             }
             ArrayList<SpotifyArtist> artistsToAdd = this.spotifyGetArtists(artistsToAddSpotifyIds);
 
-            // TODO : Get necessary data and filter what is already here
-            // TODO : Maybe use Set instead of HashMap
+            for (SpotifyArtist artist : artistsToAdd) {
+                for (String genre : artist.getGenres()) {
+                    genresToAdd.add(genre);
+                }
+            }
 
-            this.musicRepository.postArtist(albumsToAdd, artistsToAdd, tracksToAdd);
+            // TODO : Get necessary data and filter what is already here
+            // TODO : Maybe use HashSet instead of HashMap and ArrayList
+
+            this.musicRepository.postArtist(albumsToAdd, artistsToAdd, genresToAdd, tracksToAdd);
         } catch (Exception e) {
             this.logger.error("MusicService - postArtist(" + artistSpotifyId + ") failed");
             throw e;

@@ -1,6 +1,7 @@
 package org.qxpcba.repository;
 
 import java.util.ArrayList;
+import java.util.HashSet;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.jdbc.core.JdbcTemplate;
@@ -20,18 +21,22 @@ public class MusicRepository {
     }
 
     public void postArtist(ArrayList<SpotifySimplifiedAlbum> albumsToAdd, ArrayList<SpotifyArtist> artistsToAdd,
+            HashSet<String> genresToAdd,
             ArrayList<SpotifySimplifiedTrack> tracksToAdd) {
         try {
             // TODO : Delete the following queries
-            jdbcTemplate.update("DELETE FROM t_music_artists;");
-            jdbcTemplate.update("ALTER TABLE t_music_artists AUTO_INCREMENT = 1");
-            jdbcTemplate.update("DELETE FROM t_music_albums;");
-            jdbcTemplate.update("ALTER TABLE t_music_albums AUTO_INCREMENT = 1");
             jdbcTemplate.update("DELETE FROM t_music_tracks;");
             jdbcTemplate.update("ALTER TABLE t_music_tracks AUTO_INCREMENT = 1");
+            jdbcTemplate.update("DELETE FROM t_music_albums;");
+            jdbcTemplate.update("ALTER TABLE t_music_albums AUTO_INCREMENT = 1");
+            jdbcTemplate.update("DELETE FROM t_music_artists;");
+            jdbcTemplate.update("ALTER TABLE t_music_artists AUTO_INCREMENT = 1");
+            jdbcTemplate.update("DELETE FROM t_music_genres;");
+            jdbcTemplate.update("ALTER TABLE t_music_genres AUTO_INCREMENT = 1");
             this.insertIntoTMusicArtists(artistsToAdd);
             this.insertIntoTMusicAlbums(albumsToAdd);
             this.insertIntoTMusicTracks(tracksToAdd);
+            this.insertIntoTMusicGenres(genresToAdd);
             System.out.println("postArtist repository logic done");
         } catch (Exception e) {
             System.out.println(e);
@@ -105,6 +110,29 @@ public class MusicRepository {
             jdbcTemplate.update(query);
         } catch (Exception e) {
             this.logger.error("MusicRepository - insertIntoTMusicArtists(artistsToAdd) failed");
+            throw e;
+        }
+    }
+
+    private void insertIntoTMusicGenres(HashSet<String> genresToAdd) {
+        String query = "INSERT INTO t_music_genres (c_spotify_id) VALUES\n";
+
+        int genresNumber = genresToAdd.size();
+        int index = 1;
+        for (String genre : genresToAdd) {
+            query += "('" + genre + "')";
+            if (index == genresNumber) {
+                query += ";";
+            } else {
+                query += ",\n";
+            }
+            index++;
+        }
+
+        try {
+            jdbcTemplate.update(query);
+        } catch (Exception e) {
+            this.logger.error("MusicRepository - insertIntoTMusicGenres(genresToAdd) failed");
             throw e;
         }
     }
