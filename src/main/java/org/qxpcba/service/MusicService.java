@@ -1,10 +1,8 @@
 package org.qxpcba.service;
 
-import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Calendar;
 import java.util.Date;
-import java.util.HashMap;
 import java.util.HashSet;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -41,20 +39,20 @@ public class MusicService {
         try {
             HashSet<String> addedButNotSuggestedArtists = this.musicRepository.selectAddedArtistsSpotifyIds();
             if (!addedButNotSuggestedArtists.contains(artistSpotifyId)) {
-                ArrayList<SpotifySimplifiedAlbum> albumsToAdd = this.spotifyGetAlbums(artistSpotifyId);
+                HashSet<SpotifySimplifiedAlbum> albumsToAdd = this.spotifyGetAlbums(artistSpotifyId);
 
-                ArrayList<SpotifySimplifiedTrack> tracksToAdd = new ArrayList<SpotifySimplifiedTrack>();
+                HashSet<SpotifySimplifiedTrack> tracksToAdd = new HashSet<SpotifySimplifiedTrack>();
                 for (SpotifySimplifiedAlbum album : albumsToAdd) {
                     tracksToAdd.addAll(this.spotifyGetAlbumTracks(album.getSpotifyId()));
                 }
 
                 HashSet<String> genresToAdd = new HashSet<String>();
 
-                HashMap<String, Boolean> artistsToAddSpotifyIds = this
+                HashSet<String> artistsToAddSpotifyIds = this
                         .spotifyGetArtistRelatedArtistsIds(artistSpotifyId);
                 for (SpotifySimplifiedAlbum album : albumsToAdd) {
                     for (SpotifySimplifiedArtist artist : album.getArtists()) {
-                        artistsToAddSpotifyIds.put(artist.getSpotifyId(), true);
+                        artistsToAddSpotifyIds.add(artist.getSpotifyId());
 
                         for (String genre : album.getGenres()) {
                             genresToAdd.add(genre);
@@ -63,10 +61,10 @@ public class MusicService {
                 }
                 for (SpotifySimplifiedTrack track : tracksToAdd) {
                     for (SpotifySimplifiedArtist artist : track.getArtists()) {
-                        artistsToAddSpotifyIds.put(artist.getSpotifyId(), true);
+                        artistsToAddSpotifyIds.add(artist.getSpotifyId());
                     }
                 }
-                ArrayList<SpotifyArtist> artistsToAdd = this.spotifyGetArtists(artistsToAddSpotifyIds);
+                HashSet<SpotifyArtist> artistsToAdd = this.spotifyGetArtists(artistsToAddSpotifyIds);
 
                 for (SpotifyArtist artist : artistsToAdd) {
                     for (String genre : artist.getGenres()) {
@@ -77,7 +75,7 @@ public class MusicService {
                 // Filtering data to add according to what is already in the database
                 HashSet<String> addedAlbumsSpotifyIds = this.musicRepository.selectSpotifyIdsFromTMusicAlbums();
 
-                ArrayList<SpotifySimplifiedAlbum> filteredAlbumsToAdd = new ArrayList<SpotifySimplifiedAlbum>();
+                HashSet<SpotifySimplifiedAlbum> filteredAlbumsToAdd = new HashSet<SpotifySimplifiedAlbum>();
                 for (SpotifySimplifiedAlbum album : albumsToAdd) {
                     if (!addedAlbumsSpotifyIds.contains(album.getSpotifyId())) {
                         filteredAlbumsToAdd.add(album);
@@ -86,7 +84,7 @@ public class MusicService {
 
                 HashSet<String> addedArtistsSpotifyIds = this.musicRepository.selectSpotifyIdsFromTMusicArtists();
 
-                ArrayList<SpotifyArtist> filteredArtistsToAdd = new ArrayList<SpotifyArtist>();
+                HashSet<SpotifyArtist> filteredArtistsToAdd = new HashSet<SpotifyArtist>();
                 for (SpotifyArtist artist : artistsToAdd) {
                     if (!addedArtistsSpotifyIds.contains(artist.getSpotifyId())) {
                         filteredArtistsToAdd.add(artist);
@@ -104,20 +102,19 @@ public class MusicService {
 
                 HashSet<String> addedTracksSpotifyIds = this.musicRepository.selectSpotifyIdsFromTMusicTracks();
 
-                ArrayList<SpotifySimplifiedTrack> filteredTracksToAdd = new ArrayList<SpotifySimplifiedTrack>();
+                HashSet<SpotifySimplifiedTrack> filteredTracksToAdd = new HashSet<SpotifySimplifiedTrack>();
                 for (SpotifySimplifiedTrack track : tracksToAdd) {
                     if (!addedTracksSpotifyIds.contains(track.getSpotifyId())) {
                         filteredTracksToAdd.add(track);
                     }
                 }
 
-                ArrayList<SpotifyArtist> filteredSuggestedArtistsToAdd = new ArrayList<SpotifyArtist>();
+                HashSet<SpotifyArtist> filteredSuggestedArtistsToAdd = new HashSet<SpotifyArtist>();
                 for (SpotifyArtist artist : artistsToAdd) {
                     if (!addedButNotSuggestedArtists.contains(artist.getSpotifyId())) {
                         filteredSuggestedArtistsToAdd.add(artist);
                     }
                 }
-                // TODO : Maybe use HashSet instead of HashMap and ArrayList
 
                 this.musicRepository.postArtist(filteredAlbumsToAdd, artistSpotifyId, filteredArtistsToAdd,
                         filteredGenresToAdd, filteredSuggestedArtistsToAdd, filteredTracksToAdd);
@@ -162,10 +159,10 @@ public class MusicService {
         return this.spotifyAccessToken;
     }
 
-    private ArrayList<SpotifySimplifiedTrack> spotifyGetAlbumTracks(String albumSpotifyId) {
+    private HashSet<SpotifySimplifiedTrack> spotifyGetAlbumTracks(String albumSpotifyId) {
         int offset = 0;
         int tracksNumber = 1;
-        ArrayList<SpotifySimplifiedTrack> tracksToAdd = new ArrayList<SpotifySimplifiedTrack>();
+        HashSet<SpotifySimplifiedTrack> tracksToAdd = new HashSet<SpotifySimplifiedTrack>();
 
         try {
             while (offset < tracksNumber) {
@@ -193,9 +190,9 @@ public class MusicService {
         return tracksToAdd;
     }
 
-    private ArrayList<SpotifySimplifiedAlbum> spotifyGetAlbums(String artistSpotifyId) {
+    private HashSet<SpotifySimplifiedAlbum> spotifyGetAlbums(String artistSpotifyId) {
         int albumsNumber = 1;
-        ArrayList<SpotifySimplifiedAlbum> albumsToAdd = new ArrayList<SpotifySimplifiedAlbum>();
+        HashSet<SpotifySimplifiedAlbum> albumsToAdd = new HashSet<SpotifySimplifiedAlbum>();
         int offset = 0;
 
         try {
@@ -226,8 +223,8 @@ public class MusicService {
         return albumsToAdd;
     }
 
-    private HashMap<String, Boolean> spotifyGetArtistRelatedArtistsIds(String artistSpotifyId) {
-        HashMap<String, Boolean> relatedArtistsIds = new HashMap<String, Boolean>();
+    private HashSet<String> spotifyGetArtistRelatedArtistsIds(String artistSpotifyId) {
+        HashSet<String> relatedArtistsIds = new HashSet<String>();
 
         try {
             SpotifyGetArtistRelatedArtistsResponse spotifyGetArtistRelatedArtistsResponse = this.webClient.get()
@@ -238,7 +235,7 @@ public class MusicService {
                     .block();
 
             for (SpotifyArtist artist : spotifyGetArtistRelatedArtistsResponse.getArtists()) {
-                relatedArtistsIds.put(artist.getSpotifyId(), true);
+                relatedArtistsIds.add(artist.getSpotifyId());
             }
         } catch (Exception e) {
             this.logger.error("MusicService - spotifyGetArtistRelatedArtistsIds(" + artistSpotifyId + ") failed");
@@ -248,8 +245,8 @@ public class MusicService {
         return relatedArtistsIds;
     }
 
-    private ArrayList<SpotifyArtist> spotifyGetArtists(HashMap<String, Boolean> artistsSpotifyIds) {
-        ArrayList<SpotifyArtist> artistsToAdd = new ArrayList<SpotifyArtist>();
+    private HashSet<SpotifyArtist> spotifyGetArtists(HashSet<String> artistsSpotifyIds) {
+        HashSet<SpotifyArtist> artistsToAdd = new HashSet<SpotifyArtist>();
 
         int requestsNumber = artistsSpotifyIds.size() / 50;
         if (artistsSpotifyIds.size() % 50 != 0) {
@@ -260,7 +257,7 @@ public class MusicService {
         Arrays.fill(requestsArtistsSpotifyIds, "");
 
         int index = 0;
-        for (String artistSpotifyId : artistsSpotifyIds.keySet()) {
+        for (String artistSpotifyId : artistsSpotifyIds) {
             String artistSpotifyIdToAdd = "";
             if (index % 50 != 0) {
                 artistSpotifyIdToAdd += ",";

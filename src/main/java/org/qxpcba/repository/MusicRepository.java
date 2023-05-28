@@ -1,6 +1,5 @@
 package org.qxpcba.repository;
 
-import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
@@ -35,7 +34,7 @@ public class MusicRepository {
         }
     }
 
-    private void insertIntoTjMusicAlbumsArtists(ArrayList<SpotifySimplifiedAlbum> albumsToAdd) {
+    private void insertIntoTjMusicAlbumsArtists(HashSet<SpotifySimplifiedAlbum> albumsToAdd) {
         if (albumsToAdd.size() != 0) {
             String query = "INSERT INTO tj_music_albums_artists (c_album_spotify_id, c_artist_spotify_id) VALUES\n";
             boolean areValuesEmpty = true;
@@ -64,7 +63,7 @@ public class MusicRepository {
         }
     }
 
-    private void insertIntoTjMusicAlbumsGenres(ArrayList<SpotifySimplifiedAlbum> albumsToAdd) {
+    private void insertIntoTjMusicAlbumsGenres(HashSet<SpotifySimplifiedAlbum> albumsToAdd) {
         if (albumsToAdd.size() != 0) {
             String query = "INSERT INTO tj_music_albums_genres (c_album_spotify_id, c_genres_spotify_id) VALUES\n";
             boolean areValuesEmpty = true;
@@ -94,7 +93,7 @@ public class MusicRepository {
     }
 
     private void insertIntoTjMusicArtistsArtists(String artistSpotifyId,
-            ArrayList<SpotifyArtist> suggestedArtistsToAdd) {
+            HashSet<SpotifyArtist> suggestedArtistsToAdd) {
         String query = "INSERT INTO tj_music_artists_artists (c_artist_spotify_id, c_suggested_artist_spotify_id) VALUES\n";
         boolean areValuesEmpty = true;
 
@@ -120,7 +119,7 @@ public class MusicRepository {
         }
     }
 
-    private void insertIntoTjMusicArtistsGenres(ArrayList<SpotifyArtist> artistsToAdd) {
+    private void insertIntoTjMusicArtistsGenres(HashSet<SpotifyArtist> artistsToAdd) {
         if (artistsToAdd.size() != 0) {
             String query = "INSERT INTO tj_music_artists_genres (c_artist_spotify_id, c_genres_spotify_id) VALUES\n";
             boolean areValuesEmpty = true;
@@ -149,7 +148,7 @@ public class MusicRepository {
         }
     }
 
-    private void insertIntoTjMusicArtiststracks(ArrayList<SpotifySimplifiedTrack> tracksToAdd) {
+    private void insertIntoTjMusicArtiststracks(HashSet<SpotifySimplifiedTrack> tracksToAdd) {
         if (tracksToAdd.size() != 0) {
             String query = "INSERT INTO tj_music_artists_tracks (c_artist_spotify_id, c_track_spotify_id) VALUES\n";
             boolean areValuesEmpty = true;
@@ -175,7 +174,7 @@ public class MusicRepository {
         }
     }
 
-    private void insertIntoTMusicAlbums(ArrayList<SpotifySimplifiedAlbum> albumsToAdd) {
+    private void insertIntoTMusicAlbums(HashSet<SpotifySimplifiedAlbum> albumsToAdd) {
         if (albumsToAdd.size() != 0) {
             String query = "INSERT INTO t_music_albums (c_name, c_picture, c_release_day, c_release_month, c_release_year, c_spotify_id, c_tracks_number, c_type) VALUES\n";
             boolean areValuesEmpty = true;
@@ -215,7 +214,7 @@ public class MusicRepository {
         }
     }
 
-    private void insertIntoTMusicArtists(ArrayList<SpotifyArtist> artistsToAdd) {
+    private void insertIntoTMusicArtists(HashSet<SpotifyArtist> artistsToAdd) {
         if (artistsToAdd.size() != 0) {
             String query = "INSERT INTO t_music_artists (c_name, c_picture, c_spotify_id) VALUES\n";
             boolean areValuesEmpty = true;
@@ -269,7 +268,7 @@ public class MusicRepository {
         }
     }
 
-    private void insertIntoTMusicTracks(ArrayList<SpotifySimplifiedTrack> tracksToAdd) {
+    private void insertIntoTMusicTracks(HashSet<SpotifySimplifiedTrack> tracksToAdd) {
         if (tracksToAdd.size() != 0) {
             String query = "INSERT INTO t_music_tracks (c_album_spotify_id, c_disc_number, c_duration, c_name, c_order, c_spotify_id) VALUES\n";
             boolean areValuesEmpty = true;
@@ -296,11 +295,11 @@ public class MusicRepository {
         }
     }
 
-    public void postArtist(ArrayList<SpotifySimplifiedAlbum> albumsToAdd, String artistSpotifyId,
-            ArrayList<SpotifyArtist> artistsToAdd,
+    public void postArtist(HashSet<SpotifySimplifiedAlbum> albumsToAdd, String artistSpotifyId,
+            HashSet<SpotifyArtist> artistsToAdd,
             HashSet<String> genresToAdd,
-            ArrayList<SpotifyArtist> suggestedArtistsToAdd,
-            ArrayList<SpotifySimplifiedTrack> tracksToAdd) {
+            HashSet<SpotifyArtist> suggestedArtistsToAdd,
+            HashSet<SpotifySimplifiedTrack> tracksToAdd) {
         try {
             this.insertIntoTMusicArtists(artistsToAdd);
             this.insertIntoTMusicAlbums(albumsToAdd);
