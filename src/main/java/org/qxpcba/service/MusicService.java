@@ -70,11 +70,23 @@ public class MusicService {
                 }
             }
 
+            // Filtering data to add according to what is already in the database
+            HashSet<String> addedAlbumsSpotifyIds = this.musicRepository.selectSpotifyIdsFromTMusicAlbums();
+
+            ArrayList<SpotifySimplifiedAlbum> filteredAlbumsToAdd = new ArrayList<SpotifySimplifiedAlbum>();
+            for (SpotifySimplifiedAlbum album : albumsToAdd) {
+                if (!addedAlbumsSpotifyIds.contains(album.getSpotifyId())) {
+                    filteredAlbumsToAdd.add(album);
+                }
+            }
+
             // TODO : Get necessary data and filter what is already here
             // TODO : Maybe use HashSet instead of HashMap and ArrayList
 
-            this.musicRepository.postArtist(albumsToAdd, artistSpotifyId, artistsToAdd, genresToAdd, tracksToAdd);
+            this.musicRepository.postArtist(albumsToAdd, artistSpotifyId, artistsToAdd, genresToAdd,
+                    tracksToAdd);
         } catch (Exception e) {
+            System.out.println(e);
             this.logger.error("MusicService - postArtist(" + artistSpotifyId + ") failed");
             throw e;
         }
