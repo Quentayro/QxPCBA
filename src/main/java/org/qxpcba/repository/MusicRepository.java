@@ -250,7 +250,7 @@ public class MusicRepository {
             boolean areValuesEmpty = true;
 
             for (String genre : genresToAdd) {
-                query += "('" + genre + "'),\n";
+                query += "('" + genre.replaceAll("'", "''") + "'),\n";
 
                 areValuesEmpty = false;
             }
@@ -318,7 +318,7 @@ public class MusicRepository {
     }
 
     public HashSet<String> selectAddedArtistsSpotifyIds() {
-        String query = "SELECT artists.c_spotify_id FROM t_music_artists artists LEFT JOIN tj_music_artists_artists suggestedArtists ON suggestedartists.c_suggested_artist_spotify_id = artists.c_spotify_id WHERE suggestedartists.c_suggested_artist_spotify_id IS NULL;";
+        String query = "SELECT artists.c_spotify_id FROM t_music_artists artists LEFT JOIN tj_music_artists_artists suggested_artists ON suggested_artists.c_suggested_artist_spotify_id = artists.c_spotify_id WHERE suggested_artists.c_suggested_artist_spotify_id IS NULL;";
 
         HashSet<String> addedArtistsSpotifyIds = new HashSet<String>();
 
