@@ -26,6 +26,7 @@ import org.qxpcba.utils.Secrets;
 @Service
 public class MusicService {
     private Logger logger = LoggerFactory.getLogger(MusicService.class);
+    private final int msWaitTime = 1;
     private MusicRepository musicRepository;
     private String spotifyAccessToken;
     private Date spotifyAccessTokenExpirationDate = new Date();
@@ -129,9 +130,10 @@ public class MusicService {
         return artistSpotifyId;
     }
 
-    private String spotifyGetAccessToken() {
+    private String spotifyGetAccessToken() throws Exception {
         if (spotifyAccessToken == null || spotifyAccessTokenExpirationDate.before(new Date())) {
             try {
+                Thread.sleep(this.msWaitTime);
                 SpotifyGetAcessTokenResponse spotifyAccessTokenResponse = this.webClient.post()
                         .uri("https://accounts.spotify.com/api/token")
                         .contentType(MediaType.APPLICATION_FORM_URLENCODED)
@@ -159,13 +161,14 @@ public class MusicService {
         return this.spotifyAccessToken;
     }
 
-    private HashSet<SpotifySimplifiedTrack> spotifyGetAlbumTracks(String albumSpotifyId) {
+    private HashSet<SpotifySimplifiedTrack> spotifyGetAlbumTracks(String albumSpotifyId) throws Exception {
         int offset = 0;
         int tracksNumber = 1;
         HashSet<SpotifySimplifiedTrack> tracksToAdd = new HashSet<SpotifySimplifiedTrack>();
 
         try {
             while (offset < tracksNumber) {
+                Thread.sleep(this.msWaitTime);
                 SpotifyGetAlbumTracksResponse spotifyGetAlbumTracksResponse = this.webClient.get()
                         .uri("https://api.spotify.com/v1/albums/" + albumSpotifyId + "/tracks?limit=50&offset="
                                 + offset)
@@ -190,13 +193,14 @@ public class MusicService {
         return tracksToAdd;
     }
 
-    private HashSet<SpotifySimplifiedAlbum> spotifyGetAlbums(String artistSpotifyId) {
+    private HashSet<SpotifySimplifiedAlbum> spotifyGetAlbums(String artistSpotifyId) throws Exception {
         int albumsNumber = 1;
         HashSet<SpotifySimplifiedAlbum> albumsToAdd = new HashSet<SpotifySimplifiedAlbum>();
         int offset = 0;
 
         try {
             while (offset < albumsNumber) {
+                Thread.sleep(this.msWaitTime);
                 SpotifyGetAlbumsResponse spotifyGetAlbumsResponse = this.webClient.get()
                         .uri("https://api.spotify.com/v1/artists/" + artistSpotifyId + "/albums?limit=50&offset="
                                 + offset)
@@ -223,10 +227,11 @@ public class MusicService {
         return albumsToAdd;
     }
 
-    private HashSet<String> spotifyGetArtistRelatedArtistsIds(String artistSpotifyId) {
+    private HashSet<String> spotifyGetArtistRelatedArtistsIds(String artistSpotifyId) throws Exception {
         HashSet<String> relatedArtistsIds = new HashSet<String>();
 
         try {
+            Thread.sleep(this.msWaitTime);
             SpotifyGetArtistRelatedArtistsResponse spotifyGetArtistRelatedArtistsResponse = this.webClient.get()
                     .uri("https://api.spotify.com/v1/artists/" + artistSpotifyId + "/related-artists")
                     .header("Authorization", this.spotifyGetAccessToken())
@@ -245,7 +250,7 @@ public class MusicService {
         return relatedArtistsIds;
     }
 
-    private HashSet<SpotifyArtist> spotifyGetArtists(HashSet<String> artistsSpotifyIds) {
+    private HashSet<SpotifyArtist> spotifyGetArtists(HashSet<String> artistsSpotifyIds) throws Exception {
         HashSet<SpotifyArtist> artistsToAdd = new HashSet<SpotifyArtist>();
 
         int requestsNumber = artistsSpotifyIds.size() / 50;
@@ -269,6 +274,7 @@ public class MusicService {
 
         for (String requestArtistsSpotifyIds : requestsArtistsSpotifyIds) {
             try {
+                Thread.sleep(this.msWaitTime);
                 SpotifyGetArtistsResponse spotifyGetArtistRelatedArtistsResponse = this.webClient.get()
                         .uri("https://api.spotify.com/v1/artists?ids=" + requestArtistsSpotifyIds)
                         .header("Authorization", this.spotifyGetAccessToken())
