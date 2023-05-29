@@ -26,7 +26,7 @@ public class MusicController {
 
     @PostMapping("/postArtist")
     public ResponseEntity<Boolean> postArtist(@RequestBody String artistSpotifyId) {
-        logger.info("[POST] /postArtist");
+        logger.info("[POST] /music/postArtist");
         try {
             return ResponseEntity.status(HttpStatus.OK).body(musicService.postArtist(artistSpotifyId));
         } catch (Exception e) {
