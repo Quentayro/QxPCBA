@@ -36,7 +36,7 @@ public class MusicService {
         this.musicRepository = musicRepository;
     }
 
-    public String postArtist(String artistSpotifyId) throws Exception {
+    public boolean postArtist(String artistSpotifyId) throws Exception {
         try {
             HashSet<String> addedButNotSuggestedArtists = this.musicRepository.selectAddedArtistsSpotifyIds();
             if (!addedButNotSuggestedArtists.contains(artistSpotifyId)) {
@@ -127,7 +127,7 @@ public class MusicService {
             throw e;
         }
 
-        return artistSpotifyId;
+        return true;
     }
 
     private String spotifyGetAccessToken() throws Exception {

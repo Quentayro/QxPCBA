@@ -25,13 +25,13 @@ public class MusicController {
     }
 
     @PostMapping("/postArtist")
-    public ResponseEntity<String> postArtist(@RequestBody String artistSpotifyId) {
+    public ResponseEntity<Boolean> postArtist(@RequestBody String artistSpotifyId) {
         logger.info("[POST] /postArtist");
         try {
             return ResponseEntity.status(HttpStatus.OK).body(musicService.postArtist(artistSpotifyId));
         } catch (Exception e) {
             logger.error("MusicController - postArtist(" + artistSpotifyId + ") failed");
-            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(e.toString());
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(false);
         }
     }
 }
