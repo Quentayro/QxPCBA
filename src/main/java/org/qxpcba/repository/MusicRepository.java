@@ -73,7 +73,7 @@ public class MusicRepository {
                 String albumSpotifyId = album.getSpotifyId();
 
                 for (String genre : genres) {
-                    query += "('" + albumSpotifyId + "','" + genre + "'),\n";
+                    query += "('" + albumSpotifyId + "','" + genre.replaceAll("'", "''") + "'),\n";
 
                     areValuesEmpty = false;
                 }
@@ -129,7 +129,7 @@ public class MusicRepository {
                 String artistSpotifyid = artist.getSpotifyId();
 
                 for (String genre : genres) {
-                    query += "('" + artistSpotifyid + "','" + genre + "'),\n";
+                    query += "('" + artistSpotifyid + "','" + genre.replaceAll("'", "''") + "'),\n";
 
                     areValuesEmpty = false;
                 }
