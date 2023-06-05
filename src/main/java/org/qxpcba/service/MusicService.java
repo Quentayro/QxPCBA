@@ -9,7 +9,8 @@ import org.slf4j.LoggerFactory;
 import org.springframework.http.MediaType;
 import org.springframework.stereotype.Service;
 import org.springframework.web.reactive.function.client.WebClient;
-
+import org.qxpcba.model.music.MusicGenre;
+import org.qxpcba.model.music.MusicGetArtistsResponse;
 import org.qxpcba.model.music.SpotifyArtist;
 import org.qxpcba.model.music.SpotifyGetAcessTokenResponse;
 import org.qxpcba.model.music.SpotifyGetAlbumTracksResponse;
@@ -36,7 +37,13 @@ public class MusicService {
         this.musicRepository = musicRepository;
     }
 
-    public boolean postArtist(String artistSpotifyId) throws Exception {
+    public MusicGetArtistsResponse getArtists() {
+        return new MusicGetArtistsResponse(this.musicRepository.getArtists(),
+                this.musicRepository.getGenres(),
+                this.musicRepository.getSuggestedArtists());
+    }
+
+    public void postArtist(String artistSpotifyId) throws Exception {
         try {
             HashSet<String> addedButNotSuggestedArtists = this.musicRepository.selectAddedArtistsSpotifyIds();
             if (!addedButNotSuggestedArtists.contains(artistSpotifyId)) {
@@ -123,11 +130,19 @@ public class MusicService {
                 throw new Exception();
             }
         } catch (Exception e) {
-            this.logger.error("MusicService - postArtist(" + artistSpotifyId + ") failed");
+            this.logger.error("MusicService - postArtist(artistSpotifyId) failed");
             throw e;
         }
+    }
 
-        return true;
+    public HashSet<MusicGenre> postGenreDisplayText(MusicGenre genre) {
+        try {
+            this.musicRepository.postGenreDisplayText(genre);
+            return this.musicRepository.getGenres();
+        } catch (Exception e) {
+            this.logger.error("MusicService - postGenreDisplayText(genre) failed");
+            throw e;
+        }
     }
 
     private String spotifyGetAccessToken() throws Exception {

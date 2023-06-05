@@ -6,7 +6,7 @@ CREATE TABLE t_music_tracks (
     c_duration MEDIUMINT UNSIGNED NOT NULL,
     c_is_available BOOLEAN NOT NULL DEFAULT TRUE,
     c_is_remix BOOLEAN NOT NULL DEFAULT FALSE,
-    c_name VARCHAR(127) NOT NULL,
+    c_name VARCHAR(255) NOT NULL,
     c_order SMALLINT UNSIGNED NOT NULL,
     c_rank CHAR(1),
     c_rank_date TIMESTAMP,

@@ -193,6 +193,7 @@ SELECT
             AND c_is_remix
             AND tjmat.c_artist_spotify_id = tma.c_spotify_id
     ) AS c_remix_tracks_number,
+    tma.c_spotify_id,
     (
         SELECT
             count(*)
