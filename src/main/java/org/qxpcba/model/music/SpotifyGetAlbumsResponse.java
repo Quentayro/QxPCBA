@@ -1,5 +1,7 @@
 package org.qxpcba.model.music;
 
+import com.fasterxml.jackson.databind.JsonNode;
+
 public class SpotifyGetAlbumsResponse {
     private SpotifySimplifiedAlbum[] albums;
     private int albumsNumber;
@@ -12,7 +14,15 @@ public class SpotifyGetAlbumsResponse {
         return this.albumsNumber;
     }
 
-    public void setItems(SpotifySimplifiedAlbum[] albums) {
+    public void setItems(JsonNode[] items) {
+        SpotifySimplifiedAlbum[] albums = new SpotifySimplifiedAlbum[items.length];
+
+        int index = 0;
+        for (JsonNode item : items) {
+            albums[index] = new SpotifySimplifiedAlbum(item);
+            index++;
+        }
+
         this.albums = albums;
     }
 

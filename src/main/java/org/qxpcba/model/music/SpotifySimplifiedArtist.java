@@ -4,6 +4,14 @@ public class SpotifySimplifiedArtist {
     private String name;
     private String spotifyId;
 
+    public SpotifySimplifiedArtist() {
+    }
+
+    public SpotifySimplifiedArtist(String name, String spotifyId) {
+        this.name = name;
+        this.spotifyId = spotifyId;
+    }
+
     public String getName() {
         return this.name;
     }

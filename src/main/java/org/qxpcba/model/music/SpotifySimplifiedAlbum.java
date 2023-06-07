@@ -1,16 +1,57 @@
 package org.qxpcba.model.music;
 
+import com.fasterxml.jackson.databind.JsonNode;
+
 public class SpotifySimplifiedAlbum {
     private SpotifySimplifiedArtist[] artists;
-    private String[] genres;
-    private String group;
-    private String name;
+    private String[] genres; // ok
+    private String group; // ok
+    private String name; // ok
     private String picture;
-    private String releaseDate;
-    private String releaseDatePrecision;
-    private String spotifyId;
-    private int tracksNumber;
-    private String type;
+    private String releaseDate; // ok
+    private String releaseDatePrecision; // ok
+    private String spotifyId; // ok
+    private int tracksNumber; // ok
+    private String type; // ok
+
+    public SpotifySimplifiedAlbum() {
+    }
+
+    public SpotifySimplifiedAlbum(JsonNode album) {
+        JsonNode artistsNode = album.get("artists");
+        if (artistsNode.isArray()) {
+            SpotifySimplifiedArtist[] artists = new SpotifySimplifiedArtist[artistsNode.size()];
+            int index = 0;
+            for (JsonNode artistNode : artistsNode) {
+                artists[index] = new SpotifySimplifiedArtist(artistNode.get("name").asText(),
+                        artistNode.get("id").asText());
+                index++;
+            }
+            this.artists = artists;
+        }
+
+        JsonNode genresNode = album.get("genres");
+        if (genresNode != null) {
+            if (genresNode.isArray()) {
+                String[] genres = new String[genresNode.size()];
+                int index = 0;
+                for (JsonNode genre : genresNode) {
+                    genres[index] = genre.asText();
+                    index++;
+                }
+                this.genres = genres;
+            }
+        }
+
+        this.group = album.get("album_group").asText();
+        this.name = album.get("name").asText();
+        this.releaseDate = album.get("release_date").asText();
+        this.releaseDatePrecision = album.get("release_date_precision").asText();
+        this.spotifyId = album.get("id").asText();
+        this.tracksNumber = album.get("total_tracks").asInt();
+        this.type = album.get("album_type").asText();
+
+    }
 
     public String getAlbumType() {
         return this.type;
