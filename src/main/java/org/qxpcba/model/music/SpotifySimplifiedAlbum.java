@@ -4,15 +4,15 @@ import com.fasterxml.jackson.databind.JsonNode;
 
 public class SpotifySimplifiedAlbum {
     private SpotifySimplifiedArtist[] artists;
-    private String[] genres; // ok
-    private String group; // ok
-    private String name; // ok
+    private String[] genres;
+    private String group;
+    private String name;
     private String picture;
-    private String releaseDate; // ok
-    private String releaseDatePrecision; // ok
-    private String spotifyId; // ok
-    private int tracksNumber; // ok
-    private String type; // ok
+    private String releaseDate;
+    private String releaseDatePrecision;
+    private String spotifyId;
+    private int tracksNumber;
+    private String type;
 
     public SpotifySimplifiedAlbum() {
     }
@@ -45,6 +45,18 @@ public class SpotifySimplifiedAlbum {
 
         this.group = album.get("album_group").asText();
         this.name = album.get("name").asText();
+
+        JsonNode picturesNode = album.get("images");
+        if (picturesNode.isArray()) {
+            int index = 0;
+            for (JsonNode picture : picturesNode) {
+                if (index == 0) {
+                    this.picture = picture.get("url").asText().split("https://i.scdn.co/image/")[1];
+                }
+                index++;
+            }
+        }
+
         this.releaseDate = album.get("release_date").asText();
         this.releaseDatePrecision = album.get("release_date_precision").asText();
         this.spotifyId = album.get("id").asText();
