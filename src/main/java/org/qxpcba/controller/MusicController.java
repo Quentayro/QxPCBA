@@ -51,7 +51,7 @@ public class MusicController {
         }
     }
 
-    @PostMapping("/postMusicGenreDisplayText")
+    @PostMapping("/postGenreDisplayText")
     public ResponseEntity<HashSet<MusicGenre>> postMusicGenreDisplayText(@RequestBody MusicGenre genre) {
         logger.info("[POST] /music/postArtist");
         try {
