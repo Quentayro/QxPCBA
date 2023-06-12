@@ -1,2 +1,8 @@
 # Ignoring build files
 /target
+
+# Ignoring application.properties
+application.properties
+
+# Ignoring Secrets.java
+Secrets.java
