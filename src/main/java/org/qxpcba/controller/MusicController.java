@@ -10,9 +10,11 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import org.qxpcba.model.music.MusicGenre;
+import org.qxpcba.model.music.MusicGetArtistResponse;
 import org.qxpcba.model.music.MusicGetArtistsResponse;
 import org.qxpcba.service.MusicService;
 import org.qxpcba.utils.Constants;
@@ -26,6 +28,17 @@ public class MusicController {
 
     public MusicController(MusicService musicService) {
         this.musicService = musicService;
+    }
+
+    @GetMapping("/getArtist")
+    public ResponseEntity<MusicGetArtistResponse> getArtist(@RequestParam String spotifyId) {
+        logger.info("[GET] /music/getArtist");
+        try {
+            return ResponseEntity.status(HttpStatus.OK).body(this.musicService.getArtist(spotifyId));
+        } catch (Exception e) {
+            logger.error("MusicController - getArtists() failed");
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(null);
+        }
     }
 
     @GetMapping("/getArtists")

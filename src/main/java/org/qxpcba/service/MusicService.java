@@ -10,6 +10,7 @@ import org.springframework.http.MediaType;
 import org.springframework.stereotype.Service;
 import org.springframework.web.reactive.function.client.WebClient;
 import org.qxpcba.model.music.MusicGenre;
+import org.qxpcba.model.music.MusicGetArtistResponse;
 import org.qxpcba.model.music.MusicGetArtistsResponse;
 import org.qxpcba.model.music.SpotifyArtist;
 import org.qxpcba.model.music.SpotifyGetAcessTokenResponse;
@@ -35,6 +36,10 @@ public class MusicService {
 
     public MusicService(MusicRepository musicRepository) {
         this.musicRepository = musicRepository;
+    }
+
+    public MusicGetArtistResponse getArtist(String spotifyId) {
+        return null; // TODO
     }
 
     public MusicGetArtistsResponse getArtists() {
